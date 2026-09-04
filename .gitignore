@@ -1,0 +1,31 @@
+# Secrets
+.env
+.env.*
+*.key
+*.pem
+
+# Seventh Gate databases / live campaign data
+*.db
+*.sqlite
+*.sqlite3
+
+# Python junk
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Logs
+*.log
+
+# Windows junk
+Thumbs.db
+Desktop.ini
+
+# Old timestamped project-check backups
+project_check(*).py
