@@ -91,6 +91,7 @@ TEST_FILES = [
     "test_simulation_cycle.py",
     "test_scene_refresh.py",
     "test_import_antti.py",
+    "test_horde_model_failover.py",
 ]
 
 LEGACY_WARNINGS = {
@@ -194,9 +195,7 @@ def run_tests() -> bool:
         )
 
         for name in missing:
-            print(
-                f"  - {name}"
-            )
+            print(f"  - {name}")
 
         return False
 
@@ -229,9 +228,7 @@ def run_tests() -> bool:
         verbosity=1
     )
 
-    result = runner.run(
-        suite
-    )
+    result = runner.run(suite)
 
     print()
     print(
@@ -251,16 +248,12 @@ def main() -> int:
         "SEVENTH GATE PROJECT "
         "PRE-FLIGHT"
     )
-    print(
-        f"Folder: {ROOT}"
-    )
+    print(f"Folder: {ROOT}")
 
     files_ok = check_files()
 
     if not files_ok:
-        print_heading(
-            "RESULT"
-        )
+        print_heading("RESULT")
         print(
             "NOT READY: one or more "
             "required project files are "
@@ -273,9 +266,7 @@ def main() -> int:
     imports_ok = check_imports()
 
     if not imports_ok:
-        print_heading(
-            "RESULT"
-        )
+        print_heading("RESULT")
         print(
             "NOT READY: at least one "
             "production module failed "
@@ -286,15 +277,9 @@ def main() -> int:
 
     tests_ok = run_tests()
 
-    print_heading(
-        "RESULT"
-    )
+    print_heading("RESULT")
 
-    if (
-        files_ok
-        and imports_ok
-        and tests_ok
-    ):
+    if files_ok and imports_ok and tests_ok:
         print(
             "READY: required files are "
             "present, all production "
@@ -314,6 +299,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(
-        main()
-    )
+    raise SystemExit(main())

@@ -9,36 +9,10 @@ from character_context import (
     render_character_context,
 )
 from character_profiles import get_character_profile
-from horde import generate as horde_generate
-
-
-# ============================================================
-# CHARACTER BRAIN
-#
-# This layer is intentionally thin.
-#
-# It does NOT:
-#   - decide objective truth
-#   - decide what the character perceived
-#   - resolve whether an attempted action succeeds
-#   - mutate world state
-#   - write another person's mind
-#
-# It DOES:
-#   - receive one character's filtered context
-#   - let that character model think/respond
-#   - return the character's own speech, private thought, and
-#     intended action for later Director/Engine handling
-#
-# Flow:
-#
-#   Director/perception
-#       -> Character Context
-#       -> Character Brain
-#       -> proposed character response
-#       -> Director / action interpretation
-#       -> Engine resolution
-# ============================================================
+from horde import (
+    generate as horde_generate,
+    get_ranked_text_model_names,
+)
 
 
 DEFAULT_MAX_LENGTH = 420
@@ -102,7 +76,7 @@ def _clean_optional_text(value):
     return value
 
 
-def _model_candidates(runtime):
+def _configured_model_candidates(runtime):
     preferred = _clean_optional_text(
         runtime.get("preferred_model")
     )
@@ -123,9 +97,44 @@ def _model_candidates(runtime):
             if model and model not in candidates:
                 candidates.append(model)
 
+    return candidates
+
+
+def _model_candidates(runtime, *, live_models=None):
+    configured = _configured_model_candidates(runtime)
+
+    if live_models is None:
+        candidates = configured
+    else:
+        live = []
+
+        for model in live_models:
+            model = _clean_optional_text(model)
+
+            if model and model not in live:
+                live.append(model)
+
+        active = set(live)
+
+        candidates = [
+            model
+            for model in configured
+            if model in active
+        ]
+
+        for model in live:
+            if model not in candidates:
+                candidates.append(model)
+
     if not candidates:
+        if live_models is not None:
+            raise RuntimeError(
+                "No active Horde text models are currently available."
+            )
+
         raise RuntimeError(
-            "This character has no preferred_model or fallback model configured."
+            "This character has no preferred_model or fallback model "
+            "configured, and automatic Horde model discovery is unavailable."
         )
 
     return candidates
@@ -160,11 +169,6 @@ def build_character_brain_prompt(
 
 
 def _extract_json_object(raw_text):
-    """
-    Horde models may occasionally wrap otherwise-valid JSON in prose or a
-    Markdown code fence. Accept the first complete JSON object, but reject
-    output that cannot be interpreted as one object.
-    """
     text = str(raw_text or "").strip()
 
     if not text:
@@ -260,18 +264,10 @@ def run_character_brain(
     memory_limit=6,
     knowledge_limit=8,
     generator: Callable = horde_generate,
+    model_provider: Optional[Callable] = None,
     max_length=DEFAULT_MAX_LENGTH,
     temperature=DEFAULT_TEMPERATURE,
 ):
-    """
-    Ask one character brain for its own response.
-
-    `perception` must already be filtered for this character.
-
-    Returns CharacterBrainResponse only. This function deliberately performs
-    no world mutation and does not send speech to Discord. The caller/Director
-    decides what to do with the proposed speech/action next.
-    """
     context = build_character_context(
         character_id,
         perception,
@@ -287,9 +283,7 @@ def run_character_brain(
             "This character is not currently eligible for AI brain invocation."
         )
 
-    rendered_context = render_character_context(
-        context
-    )
+    rendered_context = render_character_context(context)
 
     rich_profile = get_character_profile(
         character_id
@@ -304,9 +298,47 @@ def run_character_brain(
         ),
     )
 
+    discovery_error = None
+    live_models = None
+
+    effective_model_provider = model_provider
+
+    if (
+        effective_model_provider is None
+        and generator is horde_generate
+    ):
+        effective_model_provider = (
+            get_ranked_text_model_names
+        )
+
+    if effective_model_provider is not None:
+        try:
+            live_models = list(
+                effective_model_provider()
+            )
+        except Exception as exc:
+            discovery_error = (
+                f"{type(exc).__name__}: {exc}"
+            )
+            live_models = None
+
+    try:
+        candidates = _model_candidates(
+            runtime,
+            live_models=live_models,
+        )
+    except RuntimeError as exc:
+        if discovery_error:
+            raise RuntimeError(
+                f"{exc} Horde model discovery failed: "
+                f"{discovery_error}"
+            ) from exc
+
+        raise
+
     errors = []
 
-    for model in _model_candidates(runtime):
+    for model in candidates:
         try:
             raw_text = generator(
                 prompt=prompt,
@@ -327,7 +359,13 @@ def run_character_brain(
                 f"{model}: {type(exc).__name__}: {exc}"
             )
 
+    if discovery_error:
+        errors.append(
+            "Horde model discovery: "
+            + discovery_error
+        )
+
     raise RuntimeError(
-        "All configured character brain models failed. "
+        "All available character brain models failed. "
         + " | ".join(errors)
     )
