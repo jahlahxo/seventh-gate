@@ -1,15 +1,32 @@
 import json
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 import requests
 
+import database
 import horde
-from character_brain import run_character_brain
+from character_brain import (
+    run_character_brain,
+)
+from choose_model import (
+    get_character_model_config,
+    resolve_model_selection,
+    set_character_preferred_model,
+)
+from database import (
+    get_connection,
+    initialize_database,
+)
 
 
 class FakeResponse:
-    def __init__(self, data):
+    def __init__(
+        self,
+        data,
+    ):
         self._data = data
 
     def raise_for_status(self):
@@ -19,7 +36,9 @@ class FakeResponse:
         return self._data
 
 
-class HordeModelRankingTests(unittest.TestCase):
+class HordeModelRankingTests(
+    unittest.TestCase
+):
     def setUp(self):
         horde.clear_text_model_cache()
 
@@ -67,8 +86,10 @@ class HordeModelRankingTests(unittest.TestCase):
             FakeResponse(metadata),
         ]
 
-        names = horde.get_ranked_text_model_names(
-            force=True
+        names = (
+            horde.get_ranked_text_model_names(
+                force=True
+            )
         )
 
         self.assertEqual(
@@ -104,8 +125,10 @@ class HordeModelRankingTests(unittest.TestCase):
             ),
         ]
 
-        names = horde.get_ranked_text_model_names(
-            force=True
+        names = (
+            horde.get_ranked_text_model_names(
+                force=True
+            )
         )
 
         self.assertEqual(
@@ -133,8 +156,12 @@ class HordeModelRankingTests(unittest.TestCase):
             FakeResponse({}),
         ]
 
-        first = horde.get_ranked_text_model_names()
-        second = horde.get_ranked_text_model_names()
+        first = (
+            horde.get_ranked_text_model_names()
+        )
+        second = (
+            horde.get_ranked_text_model_names()
+        )
 
         self.assertEqual(
             first,
@@ -158,14 +185,20 @@ def fake_context(
     return {
         "runtime": {
             "character_id": 7,
-            "preferred_model": preferred_model,
-            "fallback_models": fallback_models,
+            "preferred_model": (
+                preferred_model
+            ),
+            "fallback_models": (
+                fallback_models
+            ),
             "may_invoke_ai_brain": True,
         }
     }
 
 
-class CharacterBrainLiveModelTests(unittest.TestCase):
+class CharacterBrainLiveModelTests(
+    unittest.TestCase
+):
     def _run(
         self,
         *,
@@ -191,16 +224,22 @@ class CharacterBrainLiveModelTests(unittest.TestCase):
                 7,
                 {"current": "Hello."},
                 generator=generator,
-                model_provider=lambda: list(
-                    live_models
+                model_provider=(
+                    lambda: list(
+                        live_models
+                    )
                 ),
             )
 
-    def test_configured_preference_wins_when_active(self):
+    def test_configured_preference_wins_when_active(
+        self,
+    ):
         attempted = []
 
         def generator(**kwargs):
-            attempted.append(kwargs["model"])
+            attempted.append(
+                kwargs["model"]
+            )
 
             return json.dumps({
                 "speech": "Here.",
@@ -226,11 +265,15 @@ class CharacterBrainLiveModelTests(unittest.TestCase):
             "skyfall",
         )
 
-    def test_missing_preference_uses_top_live_model(self):
+    def test_missing_preference_uses_top_live_model(
+        self,
+    ):
         attempted = []
 
         def generator(**kwargs):
-            attempted.append(kwargs["model"])
+            attempted.append(
+                kwargs["model"]
+            )
 
             return json.dumps({
                 "speech": "Here.",
@@ -256,7 +299,9 @@ class CharacterBrainLiveModelTests(unittest.TestCase):
             "top-ranked",
         )
 
-    def test_failed_preference_moves_to_next_ranked_model(self):
+    def test_failed_preference_moves_to_next_ranked_model(
+        self,
+    ):
         attempted = []
 
         def generator(**kwargs):
@@ -296,11 +341,15 @@ class CharacterBrainLiveModelTests(unittest.TestCase):
             "top-ranked",
         )
 
-    def test_discovery_failure_preserves_configured_model(self):
+    def test_discovery_failure_preserves_configured_model(
+        self,
+    ):
         attempted = []
 
         def generator(**kwargs):
-            attempted.append(kwargs["model"])
+            attempted.append(
+                kwargs["model"]
+            )
 
             return json.dumps({
                 "speech": "Still here.",
@@ -326,7 +375,11 @@ class CharacterBrainLiveModelTests(unittest.TestCase):
                 7,
                 {"current": "Hello."},
                 generator=generator,
-                model_provider=_raise_discovery_error,
+                model_provider=(
+                    lambda: (
+                        _raise_discovery_error()
+                    )
+                ),
             )
 
         self.assertEqual(
@@ -345,5 +398,101 @@ def _raise_discovery_error():
     )
 
 
+class ModelSelectorTests(
+    unittest.TestCase
+):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        database.set_database_path(
+            Path(self.tmp.name) / "test.db"
+        )
+        initialize_database()
+
+        conn = get_connection()
+
+        try:
+            cur = conn.execute(
+                """
+                INSERT INTO characters(
+                    name,
+                    preferred_model,
+                    fallback_models
+                )
+                VALUES(?,?,?)
+                """,
+                (
+                    "Antti Rautio",
+                    "old-model",
+                    "fallback-a,fallback-b",
+                ),
+            )
+            self.character_id = int(
+                cur.lastrowid
+            )
+            conn.commit()
+        finally:
+            conn.close()
+
+    def tearDown(self):
+        database.reset_database_path()
+        self.tmp.cleanup()
+
+    def test_number_selection_uses_live_order(
+        self,
+    ):
+        chosen = resolve_model_selection(
+            "2",
+            [
+                "model-a",
+                "model-b",
+                "model-c",
+            ],
+        )
+
+        self.assertEqual(
+            chosen,
+            "model-b",
+        )
+
+    def test_exact_name_selection_is_case_insensitive(
+        self,
+    ):
+        chosen = resolve_model_selection(
+            "MODEL-B",
+            [
+                "model-a",
+                "model-b",
+            ],
+        )
+
+        self.assertEqual(
+            chosen,
+            "model-b",
+        )
+
+    def test_setting_preferred_model_preserves_existing_fallbacks(
+        self,
+    ):
+        set_character_preferred_model(
+            "Antti Rautio",
+            "new-model",
+        )
+
+        config = get_character_model_config(
+            "Antti Rautio"
+        )
+
+        self.assertEqual(
+            config["preferred_model"],
+            "new-model",
+        )
+        self.assertEqual(
+            config["fallback_models"],
+            "fallback-a,fallback-b",
+        )
+
+
 if __name__ == "__main__":
-    unittest.main(verbosity=2)
+    unittest.main(
+        verbosity=2
+    )

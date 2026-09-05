@@ -4,6 +4,7 @@ import json
 from dataclasses import dataclass
 from typing import Callable, Optional
 
+from campaign import get_campaign_setting
 from character_context import (
     build_character_context,
     render_character_context,
@@ -17,6 +18,7 @@ from horde import (
 
 DEFAULT_MAX_LENGTH = 420
 DEFAULT_TEMPERATURE = 0.8
+DEFAULT_CHARACTER_MODEL_SETTING = "default_character_model"
 
 BRAIN_OUTPUT_INSTRUCTION = """
 OUTPUT FORMAT
@@ -76,7 +78,7 @@ def _clean_optional_text(value):
     return value
 
 
-def _configured_model_candidates(runtime):
+def _character_model_candidates(runtime):
     preferred = _clean_optional_text(
         runtime.get("preferred_model")
     )
@@ -100,8 +102,42 @@ def _configured_model_candidates(runtime):
     return candidates
 
 
-def _model_candidates(runtime, *, live_models=None):
-    configured = _configured_model_candidates(runtime)
+def _configured_model_candidates(
+    runtime,
+    *,
+    global_preferred_model=None,
+):
+    """
+    Normal case: all characters inherit the global preferred model.
+
+    Optional exception: a character-specific preferred/fallback chain is tried
+    first, then the global preferred model.
+    """
+    candidates = _character_model_candidates(runtime)
+
+    global_preferred = _clean_optional_text(
+        global_preferred_model
+    )
+
+    if (
+        global_preferred
+        and global_preferred not in candidates
+    ):
+        candidates.append(global_preferred)
+
+    return candidates
+
+
+def _model_candidates(
+    runtime,
+    *,
+    global_preferred_model=None,
+    live_models=None,
+):
+    configured = _configured_model_candidates(
+        runtime,
+        global_preferred_model=global_preferred_model,
+    )
 
     if live_models is None:
         candidates = configured
@@ -133,12 +169,11 @@ def _model_candidates(runtime, *, live_models=None):
             )
 
         raise RuntimeError(
-            "This character has no preferred_model or fallback model "
-            "configured, and automatic Horde model discovery is unavailable."
+            "No character override or global preferred model is configured, "
+            "and automatic Horde model discovery is unavailable."
         )
 
     return candidates
-
 
 def build_character_brain_prompt(
     rendered_context,
@@ -256,6 +291,12 @@ def parse_character_brain_output(
     )
 
 
+def _read_global_preferred_model():
+    return get_campaign_setting(
+        DEFAULT_CHARACTER_MODEL_SETTING
+    )
+
+
 def run_character_brain(
     character_id,
     perception,
@@ -265,9 +306,23 @@ def run_character_brain(
     knowledge_limit=8,
     generator: Callable = horde_generate,
     model_provider: Optional[Callable] = None,
+    default_model_provider: Optional[Callable] = None,
     max_length=DEFAULT_MAX_LENGTH,
     temperature=DEFAULT_TEMPERATURE,
 ):
+    """
+    Ask one character brain for its own response.
+
+    Production model policy:
+    - characters normally inherit one global preferred model;
+    - an individual character may optionally override that model;
+    - active Horde models are discovered automatically;
+    - if an explicit preference is missing or fails, live models are tried in
+      current SillyTavern-style ranking order.
+
+    Custom generators used by tests/tools do not trigger live database/model
+    discovery unless providers are explicitly supplied.
+    """
     context = build_character_context(
         character_id,
         perception,
@@ -298,18 +353,34 @@ def run_character_brain(
         ),
     )
 
-    discovery_error = None
-    live_models = None
-
     effective_model_provider = model_provider
+    effective_default_provider = default_model_provider
 
-    if (
-        effective_model_provider is None
-        and generator is horde_generate
-    ):
-        effective_model_provider = (
-            get_ranked_text_model_names
-        )
+    if generator is horde_generate:
+        if effective_model_provider is None:
+            effective_model_provider = (
+                get_ranked_text_model_names
+            )
+
+        if effective_default_provider is None:
+            effective_default_provider = (
+                _read_global_preferred_model
+            )
+
+    discovery_error = None
+    default_error = None
+    live_models = None
+    global_preferred_model = None
+
+    if effective_default_provider is not None:
+        try:
+            global_preferred_model = (
+                effective_default_provider()
+            )
+        except Exception as exc:
+            default_error = (
+                f"{type(exc).__name__}: {exc}"
+            )
 
     if effective_model_provider is not None:
         try:
@@ -320,18 +391,32 @@ def run_character_brain(
             discovery_error = (
                 f"{type(exc).__name__}: {exc}"
             )
-            live_models = None
 
     try:
         candidates = _model_candidates(
             runtime,
+            global_preferred_model=global_preferred_model,
             live_models=live_models,
         )
     except RuntimeError as exc:
+        details = []
+
+        if default_error:
+            details.append(
+                "global model lookup failed: "
+                + default_error
+            )
+
         if discovery_error:
+            details.append(
+                "Horde model discovery failed: "
+                + discovery_error
+            )
+
+        if details:
             raise RuntimeError(
-                f"{exc} Horde model discovery failed: "
-                f"{discovery_error}"
+                f"{exc} "
+                + " | ".join(details)
             ) from exc
 
         raise
@@ -358,6 +443,12 @@ def run_character_brain(
             errors.append(
                 f"{model}: {type(exc).__name__}: {exc}"
             )
+
+    if default_error:
+        errors.append(
+            "Global model lookup: "
+            + default_error
+        )
 
     if discovery_error:
         errors.append(

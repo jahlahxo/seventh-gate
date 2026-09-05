@@ -36,6 +36,8 @@ PRODUCTION_FILES = [
     "scene_refresh.py",
     "simulation_cycle.py",
     "import_antti.py",
+    "choose_model.py",
+    "choose_model.bat",
 ]
 
 PRODUCTION_MODULES = [
@@ -67,6 +69,7 @@ PRODUCTION_MODULES = [
     "scene_refresh",
     "simulation_cycle",
     "import_antti",
+    "choose_model",
 ]
 
 TEST_FILES = [
@@ -92,6 +95,7 @@ TEST_FILES = [
     "test_scene_refresh.py",
     "test_import_antti.py",
     "test_horde_model_failover.py",
+    "test_global_model_policy.py",
 ]
 
 LEGACY_WARNINGS = {
