@@ -38,6 +38,9 @@ PRODUCTION_FILES = [
     "import_antti.py",
     "choose_model.py",
     "choose_model.bat",
+    "discord_identity.py",
+    "discord_adapter.py",
+    "Bots/Antti/bot.py",
 ]
 
 PRODUCTION_MODULES = [
@@ -70,6 +73,8 @@ PRODUCTION_MODULES = [
     "simulation_cycle",
     "import_antti",
     "choose_model",
+    "discord_identity",
+    "discord_adapter",
 ]
 
 TEST_FILES = [
@@ -96,6 +101,7 @@ TEST_FILES = [
     "test_import_antti.py",
     "test_horde_model_failover.py",
     "test_global_model_policy.py",
+    "test_discord_identity.py",
 ]
 
 LEGACY_WARNINGS = {
@@ -119,7 +125,6 @@ def print_heading(title: str) -> None:
 
 def check_files() -> bool:
     print_heading("1. REQUIRED FILE CHECK")
-
     ok = True
 
     for name in PRODUCTION_FILES + TEST_FILES:
@@ -138,10 +143,7 @@ def check_files() -> bool:
 
     for name, warning in LEGACY_WARNINGS.items():
         if name in actual_names:
-            print(
-                f"[WARNING] {name}: "
-                f"{warning}"
-            )
+            print(f"[WARNING] {name}: {warning}")
 
     if (ROOT / "bot_legacy.py").is_file():
         print(
@@ -153,27 +155,17 @@ def check_files() -> bool:
 
 
 def check_imports() -> bool:
-    print_heading(
-        "2. PRODUCTION IMPORT CHECK"
-    )
-
+    print_heading("2. PRODUCTION IMPORT CHECK")
     ok = True
 
     for module_name in PRODUCTION_MODULES:
         try:
-            importlib.import_module(
-                module_name
-            )
-            print(
-                f"[OK]      import "
-                f"{module_name}"
-            )
+            importlib.import_module(module_name)
+            print(f"[OK]      import {module_name}")
         except Exception as exc:
             print(
-                f"[FAILED]  import "
-                f"{module_name}: "
-                f"{type(exc).__name__}: "
-                f"{exc}"
+                f"[FAILED]  import {module_name}: "
+                f"{type(exc).__name__}: {exc}"
             )
             ok = False
 
@@ -181,9 +173,7 @@ def check_imports() -> bool:
 
 
 def run_tests() -> bool:
-    print_heading(
-        "3. REGRESSION TEST SUITE"
-    )
+    print_heading("3. REGRESSION TEST SUITE")
 
     missing = [
         name
@@ -193,14 +183,11 @@ def run_tests() -> bool:
 
     if missing:
         print(
-            "Cannot run the complete "
-            "suite because these test "
-            "files are missing:"
+            "Cannot run the complete suite because these test files "
+            "are missing:"
         )
-
         for name in missing:
             print(f"  - {name}")
-
         return False
 
     loader = unittest.TestLoader()
@@ -208,50 +195,34 @@ def run_tests() -> bool:
 
     for filename in TEST_FILES:
         module_name = Path(filename).stem
-
         try:
-            module = importlib.import_module(
-                module_name
-            )
+            module = importlib.import_module(module_name)
         except Exception as exc:
             print(
-                f"[FAILED] importing "
-                f"{filename}: "
-                f"{type(exc).__name__}: "
-                f"{exc}"
+                f"[FAILED] importing {filename}: "
+                f"{type(exc).__name__}: {exc}"
             )
             return False
 
         suite.addTests(
-            loader.loadTestsFromModule(
-                module
-            )
+            loader.loadTestsFromModule(module)
         )
 
-    runner = unittest.TextTestRunner(
-        verbosity=1
-    )
-
+    runner = unittest.TextTestRunner(verbosity=1)
     result = runner.run(suite)
 
     print()
     print(
-        f"Tests run: "
-        f"{result.testsRun} | "
-        f"Failures: "
-        f"{len(result.failures)} | "
-        f"Errors: "
-        f"{len(result.errors)}"
+        f"Tests run: {result.testsRun} | "
+        f"Failures: {len(result.failures)} | "
+        f"Errors: {len(result.errors)}"
     )
 
     return result.wasSuccessful()
 
 
 def main() -> int:
-    print(
-        "SEVENTH GATE PROJECT "
-        "PRE-FLIGHT"
-    )
+    print("SEVENTH GATE PROJECT PRE-FLIGHT")
     print(f"Folder: {ROOT}")
 
     files_ok = check_files()
@@ -259,11 +230,8 @@ def main() -> int:
     if not files_ok:
         print_heading("RESULT")
         print(
-            "NOT READY: one or more "
-            "required project files are "
-            "missing. Fix the missing "
-            "files before changing "
-            "production code."
+            "NOT READY: one or more required project files are missing. "
+            "Fix the missing files before changing production code."
         )
         return 1
 
@@ -272,10 +240,8 @@ def main() -> int:
     if not imports_ok:
         print_heading("RESULT")
         print(
-            "NOT READY: at least one "
-            "production module failed "
-            "to import. Fix that before "
-            "moving forward."
+            "NOT READY: at least one production module failed to import. "
+            "Fix that before moving forward."
         )
         return 1
 
@@ -285,19 +251,14 @@ def main() -> int:
 
     if files_ok and imports_ok and tests_ok:
         print(
-            "READY: required files are "
-            "present, all production "
-            "modules import, and the "
-            "full regression suite "
-            "passes."
+            "READY: required files are present, all production modules "
+            "import, and the full regression suite passes."
         )
         return 0
 
     print(
-        "NOT READY: the regression "
-        "suite found a problem. Do not "
-        "continue building until it is "
-        "fixed."
+        "NOT READY: the regression suite found a problem. Do not continue "
+        "building until it is fixed."
     )
     return 1
 

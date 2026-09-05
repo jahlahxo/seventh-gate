@@ -1,30 +1,38 @@
+from __future__ import annotations
+
 import os
-import discord
+import sys
+from pathlib import Path
+
 from dotenv import load_dotenv
 
-load_dotenv()
+
+BOT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BOT_DIR.parents[1]
+
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from discord_adapter import run_character_bot  # noqa: E402
+
+
+CHARACTER_ID = 1
+
+load_dotenv(BOT_DIR / ".env")
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 if not TOKEN:
-    raise RuntimeError("DISCORD_TOKEN is missing from .env")
+    raise RuntimeError(
+        "DISCORD_TOKEN is missing from "
+        f"{BOT_DIR / '.env'}"
+    )
 
-intents = discord.Intents.default()
-intents.message_content = True
-intents.members = True
 
-client = discord.Client(intents=intents)
-
-@client.event
-async def on_ready():
-    print(f"Logged in as {client.user}")
-
-@client.event
-async def on_message(message):
-    if message.author.bot:
-        return
-
-    if message.content.lower() == "antti ping":
-        await message.channel.send("Perkele. I’m here.")
-
-client.run(TOKEN)
+if __name__ == "__main__":
+    run_character_bot(
+        token=TOKEN,
+        character_id=CHARACTER_ID,
+        diagnostic_trigger="antti ping",
+        diagnostic_response="Perkele. I’m here.",
+    )
