@@ -27,12 +27,15 @@ PRODUCTION_FILES = [
     "family.py",
     "development.py",
     "character_context.py",
+    "character_profiles.py",
+    "character_creation.py",
     "character_brain.py",
     "director.py",
     "rp_loop.py",
     "action_interpreter.py",
     "scene_refresh.py",
     "simulation_cycle.py",
+    "import_antti.py",
 ]
 
 PRODUCTION_MODULES = [
@@ -55,12 +58,15 @@ PRODUCTION_MODULES = [
     "family",
     "development",
     "character_context",
+    "character_profiles",
+    "character_creation",
     "character_brain",
     "director",
     "rp_loop",
     "action_interpreter",
     "scene_refresh",
     "simulation_cycle",
+    "import_antti",
 ]
 
 TEST_FILES = [
@@ -77,11 +83,14 @@ TEST_FILES = [
     "test_development.py",
     "test_character_context.py",
     "test_character_brain.py",
+    "test_character_profiles.py",
+    "test_character_profile_brain.py",
     "test_director.py",
     "test_rp_loop.py",
     "test_action_interpreter.py",
     "test_simulation_cycle.py",
     "test_scene_refresh.py",
+    "test_import_antti.py",
 ]
 
 LEGACY_WARNINGS = {
@@ -108,20 +117,13 @@ def check_files() -> bool:
 
     ok = True
 
-    for name in (
-        PRODUCTION_FILES
-        + TEST_FILES
-    ):
+    for name in PRODUCTION_FILES + TEST_FILES:
         path = ROOT / name
 
         if path.is_file():
-            print(
-                f"[OK]      {name}"
-            )
+            print(f"[OK]      {name}")
         else:
-            print(
-                f"[MISSING] {name}"
-            )
+            print(f"[MISSING] {name}")
             ok = False
 
     actual_names = {
@@ -129,19 +131,14 @@ def check_files() -> bool:
         for entry in ROOT.iterdir()
     }
 
-    for (
-        name,
-        warning,
-    ) in LEGACY_WARNINGS.items():
+    for name, warning in LEGACY_WARNINGS.items():
         if name in actual_names:
             print(
                 f"[WARNING] {name}: "
                 f"{warning}"
             )
 
-    if (
-        ROOT / "bot_legacy.py"
-    ).is_file():
+    if (ROOT / "bot_legacy.py").is_file():
         print(
             "[OK]      bot_legacy.py is "
             "quarantined as legacy code."
@@ -157,9 +154,7 @@ def check_imports() -> bool:
 
     ok = True
 
-    for module_name in (
-        PRODUCTION_MODULES
-    ):
+    for module_name in PRODUCTION_MODULES:
         try:
             importlib.import_module(
                 module_name
@@ -188,9 +183,7 @@ def run_tests() -> bool:
     missing = [
         name
         for name in TEST_FILES
-        if not (
-            ROOT / name
-        ).is_file()
+        if not (ROOT / name).is_file()
     ]
 
     if missing:
@@ -211,15 +204,11 @@ def run_tests() -> bool:
     suite = unittest.TestSuite()
 
     for filename in TEST_FILES:
-        module_name = (
-            Path(filename).stem
-        )
+        module_name = Path(filename).stem
 
         try:
-            module = (
-                importlib.import_module(
-                    module_name
-                )
+            module = importlib.import_module(
+                module_name
             )
         except Exception as exc:
             print(
@@ -236,10 +225,8 @@ def run_tests() -> bool:
             )
         )
 
-    runner = (
-        unittest.TextTestRunner(
-            verbosity=1
-        )
+    runner = unittest.TextTestRunner(
+        verbosity=1
     )
 
     result = runner.run(
@@ -256,9 +243,7 @@ def run_tests() -> bool:
         f"{len(result.errors)}"
     )
 
-    return (
-        result.wasSuccessful()
-    )
+    return result.wasSuccessful()
 
 
 def main() -> int:
@@ -285,9 +270,7 @@ def main() -> int:
         )
         return 1
 
-    imports_ok = (
-        check_imports()
-    )
+    imports_ok = check_imports()
 
     if not imports_ok:
         print_heading(
