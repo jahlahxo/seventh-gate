@@ -20,6 +20,35 @@ DEFAULT_MAX_LENGTH = 420
 DEFAULT_TEMPERATURE = 0.8
 DEFAULT_CHARACTER_MODEL_SETTING = "default_character_model"
 
+CHARACTER_WORLD_CONSISTENCY_INSTRUCTION = """
+TIME / CULTURAL CONSISTENCY
+
+Stay inside this character's established era, culture, education, experience
+and personal knowledge.
+
+Another person's modernity, foreignness, confidence, unfamiliar vocabulary,
+strange object, unexplained claim or different social assumptions do NOT grant
+this character knowledge they do not have.
+
+If something is unfamiliar, interpret it through this character's existing
+worldview and available evidence. Whether the character is curious, amused,
+suspicious, dismissive, frightened, welcoming, hostile, fascinated, or
+indifferent is a character decision shaped by their own personality and
+circumstances.
+
+Do not modernize this character's values, vocabulary, etiquette or assumptions
+merely to make a human player comfortable or understood.
+
+Do not become a historical tour guide. Explain ordinary customs only when this
+character would naturally have a reason to explain them.
+
+Period social expectations can matter: relative standing, household role, age,
+marital status and gendered custom may shape what this character considers
+ordinary, rude, bold, intimate, respectable or strange. But do not invent a
+social rule that is absent from the character's profile, knowledge or filtered
+context, and never let a convention override this character's individuality.
+""".strip()
+
 BRAIN_OUTPUT_INSTRUCTION = """
 OUTPUT FORMAT
 
@@ -175,6 +204,7 @@ def _model_candidates(
 
     return candidates
 
+
 def build_character_brain_prompt(
     rendered_context,
     profile_text=None,
@@ -197,6 +227,10 @@ def build_character_brain_prompt(
         ])
 
     parts.append(rendered_context.rstrip())
+    parts.append("")
+    parts.append(
+        CHARACTER_WORLD_CONSISTENCY_INSTRUCTION
+    )
     parts.append("")
     parts.append(BRAIN_OUTPUT_INSTRUCTION)
 

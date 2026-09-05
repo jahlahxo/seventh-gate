@@ -1,34 +1,70 @@
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 import database
-from character_creation import configure_character_models
-from character_profiles import get_character_profile
-from database import get_connection, initialize_database
-from import_antti import import_antti
+from character_creation import (
+    configure_character_models,
+)
+from character_profiles import (
+    get_character_profile,
+)
+from database import (
+    get_connection,
+    initialize_database,
+)
 
 
-class AnttiImportTests(unittest.TestCase):
+CAMPAIGN_DIR = (
+    Path(__file__).resolve()
+    .parents[1]
+)
+TOOLS_DIR = (
+    CAMPAIGN_DIR
+    / "tools"
+)
+
+if str(TOOLS_DIR) not in sys.path:
+    sys.path.insert(
+        0,
+        str(TOOLS_DIR),
+    )
+
+from import_antti import import_antti  # noqa: E402
+
+
+class AnttiImportTests(
+    unittest.TestCase
+):
     def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory()
-        database.set_database_path(
-            Path(self.tmp.name) / "test.db"
+        self.tmp = (
+            tempfile.TemporaryDirectory()
         )
+
+        database.set_database_path(
+            Path(self.tmp.name)
+            / "test.db"
+        )
+
         initialize_database()
 
     def tearDown(self):
         database.reset_database_path()
         self.tmp.cleanup()
 
-    def test_import_uses_real_profile_and_cleans_artifacts(self):
+    def test_import_uses_real_profile_and_cleans_artifacts(
+        self,
+    ):
         created = import_antti()
 
         profile = get_character_profile(
             created.character_id
         )
 
-        self.assertIsNotNone(profile)
+        self.assertIsNotNone(
+            profile
+        )
         self.assertEqual(
             profile.source_name,
             "antti_prompt.txt",
@@ -42,7 +78,9 @@ class AnttiImportTests(unittest.TestCase):
             profile.profile_text,
         )
 
-    def test_import_is_idempotent(self):
+    def test_import_is_idempotent(
+        self,
+    ):
         first = import_antti()
         second = import_antti()
 
@@ -64,9 +102,14 @@ class AnttiImportTests(unittest.TestCase):
         finally:
             conn.close()
 
-        self.assertEqual(count, 1)
+        self.assertEqual(
+            count,
+            1,
+        )
 
-    def test_rerun_preserves_existing_model_configuration(self):
+    def test_rerun_preserves_existing_model_configuration(
+        self,
+    ):
         created = import_antti()
 
         configure_character_models(
@@ -91,7 +134,9 @@ class AnttiImportTests(unittest.TestCase):
                 FROM characters
                 WHERE id = ?
                 """,
-                (created.character_id,),
+                (
+                    created.character_id,
+                ),
             ).fetchone()
         finally:
             conn.close()

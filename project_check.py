@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib
+import importlib.util
 import unittest
 from pathlib import Path
 
@@ -20,6 +21,7 @@ PRODUCTION_FILES = [
     "intimacy.py",
     "campaign_clock.py",
     "campaign.py",
+    "campaign_paths.py",
     "life.py",
     "reproduction.py",
     "pregnancy_awareness.py",
@@ -35,12 +37,19 @@ PRODUCTION_FILES = [
     "action_interpreter.py",
     "scene_refresh.py",
     "simulation_cycle.py",
-    "import_antti.py",
     "choose_model.py",
     "choose_model.bat",
     "discord_identity.py",
     "discord_adapter.py",
-    "Bots/Antti/bot.py",
+    "campaigns/finland_1878/Bots/Antti/bot.py",
+    "campaigns/finland_1878/Bots/Antti/antti_prompt.txt",
+    "campaigns/finland_1878/tools/import_antti.py",
+    "campaigns/finland_1878/tools/migrate_from_legacy.py",
+    "campaigns/finland_1878/campaign_shell.bat",
+    "world_grounding.py",
+    "social_grounding.py",
+    "campaigns/finland_1878/world/grounding.json",
+    "campaigns/finland_1878/world/social.json",
 ]
 
 PRODUCTION_MODULES = [
@@ -56,6 +65,7 @@ PRODUCTION_MODULES = [
     "intimacy",
     "campaign_clock",
     "campaign",
+    "campaign_paths",
     "life",
     "reproduction",
     "pregnancy_awareness",
@@ -71,10 +81,11 @@ PRODUCTION_MODULES = [
     "action_interpreter",
     "scene_refresh",
     "simulation_cycle",
-    "import_antti",
     "choose_model",
     "discord_identity",
     "discord_adapter",
+    "world_grounding",
+    "social_grounding",
 ]
 
 TEST_FILES = [
@@ -98,10 +109,13 @@ TEST_FILES = [
     "test_action_interpreter.py",
     "test_simulation_cycle.py",
     "test_scene_refresh.py",
-    "test_import_antti.py",
+    "campaigns/finland_1878/tests/test_import_antti.py",
     "test_horde_model_failover.py",
     "test_global_model_policy.py",
     "test_discord_identity.py",
+    "test_campaign_paths.py",
+    "campaigns/finland_1878/tests/test_world_grounding.py",
+    "campaigns/finland_1878/tests/test_social_grounding.py",
 ]
 
 LEGACY_WARNINGS = {
@@ -114,6 +128,15 @@ LEGACY_WARNINGS = {
         "resolver.py as the production module."
     ),
 }
+
+
+FORBIDDEN_CAMPAIGN_PATHS = [
+    "Bots/Antti",
+    "import_antti.py",
+    "test_import_antti.py",
+    "test_world_grounding.py",
+    "test_social_grounding.py",
+]
 
 
 def print_heading(title: str) -> None:
@@ -150,6 +173,16 @@ def check_files() -> bool:
             "[OK]      bot_legacy.py is "
             "quarantined as legacy code."
         )
+
+    for name in FORBIDDEN_CAMPAIGN_PATHS:
+        path = ROOT / name
+
+        if path.exists():
+            print(
+                f"[MISPLACED] {name}: "
+                "campaign-specific material still sits in the engine root."
+            )
+            ok = False
 
     return ok
 
@@ -194,9 +227,47 @@ def run_tests() -> bool:
     suite = unittest.TestSuite()
 
     for filename in TEST_FILES:
+        path = ROOT / filename
         module_name = Path(filename).stem
+
         try:
-            module = importlib.import_module(module_name)
+            if Path(filename).parent == Path("."):
+                module = importlib.import_module(
+                    module_name
+                )
+            else:
+                unique_name = (
+                    "_seventh_gate_test_"
+                    + filename.replace("/", "_")
+                    .replace("\\", "_")
+                    .replace(".", "_")
+                )
+
+                spec = (
+                    importlib.util
+                    .spec_from_file_location(
+                        unique_name,
+                        path,
+                    )
+                )
+
+                if (
+                    spec is None
+                    or spec.loader is None
+                ):
+                    raise ImportError(
+                        f"Cannot load test module from {path}"
+                    )
+
+                module = (
+                    importlib.util
+                    .module_from_spec(
+                        spec
+                    )
+                )
+                spec.loader.exec_module(
+                    module
+                )
         except Exception as exc:
             print(
                 f"[FAILED] importing {filename}: "

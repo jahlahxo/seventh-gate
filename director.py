@@ -7,6 +7,8 @@ from typing import Callable
 from campaign import get_campaign_setting
 from development import get_director_perception_constraints
 from horde import generate as horde_generate
+from social_grounding import build_social_grounding
+from world_grounding import build_world_grounding
 
 
 DEFAULT_MAX_LENGTH = 520
@@ -36,7 +38,7 @@ Return exactly one JSON object with these keys:
 }
 
 Rules:
-- Reveal only information supported by the supplied OBJECTIVE SCENE PACKET.
+- Reveal only information supported by the supplied trusted Engine material.
 - Do not invent hidden facts, motives, thoughts, feelings, intentions,
   relationships, outcomes, or off-screen events.
 - `current` is the immediate thing this character perceives happening now.
@@ -47,7 +49,20 @@ Rules:
 - `recent` contains only recent things this character plausibly perceived.
 - `private` contains only private bodily/sensory notices addressed to THIS
   character, never a hidden diagnosis or engine-only conclusion.
-- Preserve uncertainty. If the scene packet does not support a detail, omit it.
+- Preserve uncertainty. If the trusted material does not support a detail,
+  omit it.
+- Historical/social grounding describes conditions and pressures, not every
+  individual's beliefs or choices.
+- Relative social standing, household position, marital status, age and
+  gendered expectations can matter when the supplied evidence supports them.
+- A social norm is never permission to invent a person's reaction.
+- Do not modernize the world to accommodate a modern, time-travelled, foreign
+  or culturally unfamiliar human player.
+- Do not turn ordinary historical life into a tutorial. Let history appear
+  through relevant material conditions, routines, objects, constraints and
+  naturally motivated dialogue.
+- World grounding is NOT automatically character knowledge. Reveal only
+  perceivable manifestations.
 - Do not add narration outside the JSON object.
 """.strip()
 
@@ -121,6 +136,31 @@ def build_director_prompt(
         else constraints["directive"]
     )
 
+    grounding = build_world_grounding()
+    social_grounding = build_social_grounding()
+
+    grounding_json = (
+        "null"
+        if grounding is None
+        else json.dumps(
+            grounding,
+            ensure_ascii=False,
+            indent=2,
+            default=str,
+        )
+    )
+
+    social_grounding_json = (
+        "null"
+        if social_grounding is None
+        else json.dumps(
+            social_grounding,
+            ensure_ascii=False,
+            indent=2,
+            default=str,
+        )
+    )
+
     scene_json = json.dumps(
         objective_scene,
         ensure_ascii=False,
@@ -131,14 +171,24 @@ def build_director_prompt(
     return (
         "DIRECTOR / PERCEPTION TASK\n\n"
         "You are the Director. The Engine has already determined what is true.\n"
-        "Your job here is ONLY to decide how much of the supplied scene truth "
-        "this specific character can actually perceive and how it appears to "
-        "them.\n\n"
+        "Your job here is ONLY to decide how much of the supplied trusted "
+        "world and scene truth this specific character can actually perceive "
+        "and how it appears to them.\n\n"
         "Do not decide the character's thoughts, feelings, morality, dialogue, "
         "intentions, or actions.\n"
         "Do not convert hidden engine truth into character knowledge.\n\n"
+        "WORLD CONSISTENCY\n"
+        "The world does not reshape itself around a human player's background. "
+        "A modern time traveller, a foreigner, or a person unfamiliar with local "
+        "customs still encounters the same period-appropriate material world, "
+        "institutions, constraints and social environment. Historical norms are "
+        "context, not mind control: each character remains an individual.\n\n"
         "DEVELOPMENTAL / INTERPRETIVE CONSTRAINT\n"
         f"{developmental}\n\n"
+        "TRUSTED WORLD GROUNDING\n"
+        f"{grounding_json}\n\n"
+        "TRUSTED SOCIAL GROUNDING\n"
+        f"{social_grounding_json}\n\n"
         "OBJECTIVE SCENE PACKET\n"
         f"{scene_json}\n\n"
         f"{DIRECTOR_OUTPUT_INSTRUCTION}"

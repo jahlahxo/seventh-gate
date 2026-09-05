@@ -1,0 +1,244 @@
+{
+  "profile_id": "southern_ostrobothnia_1878",
+  "label": "Southern Ostrobothnia, Grand Duchy of Finland, 1878",
+  "region": "Southern Ostrobothnia",
+  "polity": "Autonomous Grand Duchy of Finland within the Russian Empire",
+  "reference_latitude": 62.8,
+  "weather": {
+    "seed": "southern-ostrobothnia-1878-v1",
+    "months": {
+      "11": {
+        "winds": [
+          "light raw wind",
+          "moderate cold wind",
+          "gusty damp wind"
+        ],
+        "states": [
+          {
+            "name": "cold rain",
+            "weight": 24,
+            "temperature_c_min": 1.0,
+            "temperature_c_max": 5.0,
+            "ground": "muddy, waterlogged or soft where not frozen",
+            "visibility": "grey and reduced in heavier rain",
+            "travel_effect": "roads and paths are wet; clothing, leather and loads need protection"
+          },
+          {
+            "name": "sleet",
+            "weight": 26,
+            "temperature_c_min": -1.0,
+            "temperature_c_max": 2.5,
+            "ground": "wet, slushy and locally beginning to freeze",
+            "visibility": "poor during heavier bursts",
+            "travel_effect": "footing is unpleasant and roads can alternate between mud, slush and slick patches"
+          },
+          {
+            "name": "wet snow",
+            "weight": 20,
+            "temperature_c_min": -2.0,
+            "temperature_c_max": 1.5,
+            "ground": "slushy snow collecting unevenly over wet or partly frozen ground",
+            "visibility": "softened by falling snow",
+            "travel_effect": "travel is slower and damp; snow may not yet form a dependable winter surface"
+          },
+          {
+            "name": "snow",
+            "weight": 10,
+            "temperature_c_min": -5.0,
+            "temperature_c_max": -0.5,
+            "ground": "snow-covered with frozen patches beneath",
+            "visibility": "variable, lower during active snowfall",
+            "travel_effect": "travel begins to feel wintry but permanent snow cover is not guaranteed"
+          },
+          {
+            "name": "overcast and dry",
+            "weight": 15,
+            "temperature_c_min": -3.0,
+            "temperature_c_max": 4.0,
+            "ground": "damp, muddy or locally frozen depending on recent weather",
+            "visibility": "flat grey daylight",
+            "travel_effect": "roads remain seasonally rough even without current precipitation"
+          },
+          {
+            "name": "clear frost",
+            "weight": 5,
+            "temperature_c_min": -8.0,
+            "temperature_c_max": -1.0,
+            "ground": "hardening under frost with slick frozen moisture",
+            "visibility": "clearer but daylight remains brief",
+            "travel_effect": "firmer ground can ease mud while ice makes footing treacherous"
+          }
+        ]
+      }
+    }
+  },
+  "facts": [
+    {
+      "id": "grand_duchy",
+      "category": "political_context",
+      "scope": "Finland",
+      "valid_from": "1809-01-01",
+      "valid_to": "1917-12-05",
+      "text": "Finland is an autonomous Grand Duchy within the Russian Empire. Swedish-era laws and much of the inherited social order remain important foundations of administration.",
+      "source_ids": [
+        "finnish_government_grand_duchy"
+      ]
+    },
+    {
+      "id": "markka",
+      "category": "money",
+      "scope": "Finland",
+      "valid_from": "1860-01-01",
+      "valid_to": "2001-12-31",
+      "text": "The Finnish markka is the monetary unit.",
+      "source_ids": [
+        "bank_of_finland_markka"
+      ]
+    },
+    {
+      "id": "gold_standard_1878",
+      "category": "money",
+      "scope": "Finland",
+      "valid_from": "1878-01-01",
+      "valid_to": "1914-12-31",
+      "text": "Finland adopted the gold standard in 1878.",
+      "source_ids": [
+        "bank_of_finland_gold_standard"
+      ]
+    },
+    {
+      "id": "schooling_not_compulsory",
+      "category": "education",
+      "scope": "rural Finland",
+      "valid_from": "1866-05-17",
+      "valid_to": "1921-07-31",
+      "text": "Elementary schools exist under the 1866 school reform, but schooling is not yet compulsory and rural school provision remains uneven.",
+      "source_ids": [
+        "university_helsinki_education",
+        "finlit_rural_schooling"
+      ]
+    },
+    {
+      "id": "manual_agriculture",
+      "category": "material_life",
+      "scope": "rural Finland",
+      "valid_from": "1800-01-01",
+      "valid_to": "1899-12-31",
+      "text": "Ordinary farm work is still heavily dependent on human labour, draft animals and hand tools rather than modern agricultural machinery.",
+      "source_ids": [
+        "sarka_before_machines"
+      ]
+    },
+    {
+      "id": "rural_time_discipline",
+      "category": "daily_rhythm",
+      "scope": "rural Finland",
+      "valid_from": "1800-01-01",
+      "valid_to": "1921-04-30",
+      "text": "Rural daily life is less governed by modern minute-by-minute standardized clock time; daylight, meals, work tasks, bells and local practice matter strongly to the shape of the day.",
+      "source_ids": [
+        "jyx_time_discipline",
+        "finland_time_1921"
+      ]
+    },
+    {
+      "id": "late_autumn_transition",
+      "category": "seasonal_environment",
+      "scope": "Finland",
+      "valid_from": "1800-01-01",
+      "valid_to": "2100-12-31",
+      "months": [
+        11
+      ],
+      "text": "November is a transition into thermal winter across much of Finland. Rain, sleet, snow, thaw and freeze can all plausibly occur, and permanent snow cover need not yet be established.",
+      "source_ids": [
+        "fmi_seasons"
+      ]
+    },
+    {
+      "id": "growing_season_over",
+      "category": "seasonal_life",
+      "scope": "rural southern and central Finland",
+      "valid_from": "1800-01-01",
+      "valid_to": "2100-12-31",
+      "months": [
+        11
+      ],
+      "text": "The growing season is ending or over, so rural work shifts away from active field growth toward livestock care, stored produce, fuel, repairs, transport and winter preparation.",
+      "source_ids": [
+        "fmi_seasons",
+        "sarka_before_machines"
+      ]
+    },
+    {
+      "id": "winter_evening_household",
+      "category": "domestic_life",
+      "scope": "rural Finland",
+      "valid_from": "1800-01-01",
+      "valid_to": "1899-12-31",
+      "months": [
+        11,
+        12,
+        1,
+        2,
+        3
+      ],
+      "text": "Long winter evenings can bring several household activities into the same indoor space; reading aloud may accompany handicrafts and other domestic work.",
+      "source_ids": [
+        "finlit_winter_evenings"
+      ]
+    }
+  ],
+  "sources": {
+    "finnish_government_grand_duchy": {
+      "title": "History of the Finnish Government",
+      "publisher": "Finnish Government",
+      "url": "https://valtioneuvosto.fi/en/history-and-buildings"
+    },
+    "bank_of_finland_markka": {
+      "title": "The markka",
+      "publisher": "Bank of Finland",
+      "url": "https://www.suomenpankki.fi/en/bank-of-finland/art-and-history/the-markka/"
+    },
+    "bank_of_finland_gold_standard": {
+      "title": "On Nordic influence in Europe",
+      "publisher": "Bank of Finland",
+      "url": "https://www.suomenpankki.fi/fi/ajankohtaista/puheet-ja-haastattelut/2025/on-nordic-influence-in-europe/"
+    },
+    "university_helsinki_education": {
+      "title": "Educator of the nation, by the grace of God",
+      "publisher": "University of Helsinki",
+      "url": "https://375humanistia.helsinki.fi/en/uno-cygnaeus/educator-of-the-nation-by-the-grace-of-god"
+    },
+    "finlit_rural_schooling": {
+      "title": "Sofia Kotilainen, rural schooling discussion",
+      "publisher": "Finnish Literature Society",
+      "url": "https://oa.finlit.fi/books/54/files/67316c8c-b099-4aa7-bced-5f171461af46.pdf"
+    },
+    "sarka_before_machines": {
+      "title": "Before Machines",
+      "publisher": "Finnish Museum of Agriculture Sarka",
+      "url": "https://www.sarka.fi/in-english/exhibitions/"
+    },
+    "jyx_time_discipline": {
+      "title": "Study discussing agricultural time discipline in Finland",
+      "publisher": "University of Jyvaskyla repository",
+      "url": "https://jyx.jyu.fi/bitstreams/fe4c9dc1-a897-43d2-9d78-4d1ae03d97df/download"
+    },
+    "finland_time_1921": {
+      "title": "1921 timeline: introduction of Eastern European Time",
+      "publisher": "Finland 100",
+      "url": "https://finland100.fi/timeline/1921-2/"
+    },
+    "fmi_seasons": {
+      "title": "Seasons in Finland",
+      "publisher": "Finnish Meteorological Institute",
+      "url": "https://en.ilmatieteenlaitos.fi/seasons-in-finland"
+    },
+    "finlit_winter_evenings": {
+      "title": "Rural reading and winter evenings",
+      "publisher": "Finnish Literature Society",
+      "url": "https://oa.finlit.fi/books/54/files/67316c8c-b099-4aa7-bced-5f171461af46.pdf"
+    }
+  }
+}

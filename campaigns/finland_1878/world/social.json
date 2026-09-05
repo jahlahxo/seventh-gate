@@ -1,0 +1,360 @@
+{
+  "profile_id": "southern_ostrobothnia_rural_1878_social",
+  "label": "Rural Southern Ostrobothnia social structure and etiquette, c. 1878",
+  "region": "Southern Ostrobothnia and broader western/rural Finland where the cited evidence applies",
+  "status_structure": [
+    {
+      "id": "upper_strata",
+      "name": "upper strata",
+      "description": "A thin upper layer including clergy, civil servants, army officers, shopkeepers and major estate owners. In pre-industrial Finland this group was small compared with the agricultural population.",
+      "examples": [
+        "clergy",
+        "civil servants",
+        "army officers",
+        "shopkeepers",
+        "major estate owners"
+      ],
+      "notes": "An analytical social stratum, not a universal etiquette rank.",
+      "valid_from": "1800-01-01",
+      "valid_to": "1910-12-31",
+      "source_ids": [
+        "roikonen_hakkinen_stratification"
+      ]
+    },
+    {
+      "id": "freeholders",
+      "name": "freeholders / landowning farmers",
+      "description": "Farm-owning peasants formed a distinct and economically stronger rural stratum below the small upper layer.",
+      "examples": [
+        "farm master",
+        "farm mistress",
+        "landowning farmer household"
+      ],
+      "notes": "Status was strongly connected with landholding and household position.",
+      "valid_from": "1800-01-01",
+      "valid_to": "1910-12-31",
+      "source_ids": [
+        "roikonen_hakkinen_stratification"
+      ]
+    },
+    {
+      "id": "crofters",
+      "name": "crofters / tenant farmers",
+      "description": "Tenant cultivators occupied a distinct position below freeholding farmers and above many landless agricultural workers.",
+      "examples": [
+        "crofter",
+        "tenant cultivator household"
+      ],
+      "notes": "Individual prosperity varied; this is a social-economic category, not a personality type.",
+      "valid_from": "1800-01-01",
+      "valid_to": "1910-12-31",
+      "source_ids": [
+        "roikonen_hakkinen_stratification"
+      ]
+    },
+    {
+      "id": "agricultural_labourers",
+      "name": "agricultural labourers / landless workers",
+      "description": "Agricultural labourers and other land-poor or landless workers generally occupied a lower and more economically vulnerable rural position.",
+      "examples": [
+        "farm labourer",
+        "day labourer",
+        "landless worker"
+      ],
+      "notes": "A person's position could change over a lifetime through service, marriage, tenancy, inheritance or remarriage.",
+      "valid_from": "1800-01-01",
+      "valid_to": "1910-12-31",
+      "source_ids": [
+        "roikonen_hakkinen_stratification"
+      ]
+    },
+    {
+      "id": "farm_servants",
+      "name": "farm servants / hired hands",
+      "description": "Service in another household was a common life stage for many young men and women and placed them under the authority and routines of the employing household.",
+      "examples": [
+        "maidservant",
+        "hired hand",
+        "farm servant"
+      ],
+      "notes": "Service was often temporary rather than a permanent birth-status.",
+      "valid_from": "1800-01-01",
+      "valid_to": "1910-12-31",
+      "source_ids": [
+        "roikonen_hakkinen_stratification"
+      ]
+    }
+  ],
+  "norms": [
+    {
+      "id": "status_is_relational",
+      "category": "hierarchy",
+      "scope": "rural Finland",
+      "applies_to": [
+        "all social strata"
+      ],
+      "contexts": [
+        "work",
+        "household",
+        "marriage",
+        "public interaction"
+      ],
+      "strength": "strong structural tendency",
+      "expectation": "Social standing is meaningfully shaped by landholding, occupation, household position and one's relationship to a farm master or other employer. People do not meet as if status differences are socially irrelevant.",
+      "important_nuance": "This establishes a hierarchy of circumstances and expectations, not automatic deference, kindness, hostility or obedience by every individual.",
+      "valid_from": "1800-01-01",
+      "valid_to": "1910-12-31",
+      "source_ids": [
+        "roikonen_hakkinen_stratification"
+      ]
+    },
+    {
+      "id": "life_cycle_service",
+      "category": "age_and_service",
+      "scope": "pre-industrial rural Finland",
+      "applies_to": [
+        "young men",
+        "young women",
+        "farm servants"
+      ],
+      "contexts": [
+        "work",
+        "courtship",
+        "household formation"
+      ],
+      "strength": "common pattern",
+      "expectation": "Many young men and women spend part of youth working as servants or farm workers outside their parental household before marriage. Service can function as work, training and a step toward forming a household of one's own.",
+      "important_nuance": "It was common rather than universal; access to positions and length of service varied.",
+      "valid_from": "1800-01-01",
+      "valid_to": "1910-12-31",
+      "source_ids": [
+        "roikonen_hakkinen_stratification",
+        "voutilainen_household"
+      ]
+    },
+    {
+      "id": "marriage_and_social_origin",
+      "category": "courtship_and_marriage",
+      "scope": "western and southern Finland",
+      "applies_to": [
+        "unmarried adults",
+        "families"
+      ],
+      "contexts": [
+        "courtship",
+        "marriage",
+        "family strategy"
+      ],
+      "strength": "strong statistical pattern",
+      "expectation": "Marriage is socially consequential and social origin matters. Freeholder families in particular show strong preference for marriages within or near their own social stratum.",
+      "important_nuance": "This is a pattern, not a prohibition. Cross-status marriages occur, and affection and personal choice can coexist with family and economic considerations.",
+      "valid_from": "1800-01-01",
+      "valid_to": "1910-12-31",
+      "source_ids": [
+        "roikonen_hakkinen_stratification"
+      ]
+    },
+    {
+      "id": "gendered_work",
+      "category": "gender_and_work",
+      "scope": "rural Finland",
+      "applies_to": [
+        "men",
+        "women"
+      ],
+      "contexts": [
+        "farm work",
+        "household work"
+      ],
+      "strength": "strong customary division with practical flexibility",
+      "expectation": "Farm work is gendered rather than interchangeable by default. Dairy and cowshed work, including milking, are strongly associated with women in the documented rural division of labour.",
+      "important_nuance": "Rural women are not passive domestic figures: they work as essential agricultural labourers and may perform work coded male when circumstances require it.",
+      "valid_from": "1800-01-01",
+      "valid_to": "1899-12-31",
+      "source_ids": [
+        "helsinki_women_agriculture"
+      ]
+    },
+    {
+      "id": "farm_mistress_authority_and_constraint",
+      "category": "gender_and_household_authority",
+      "scope": "Finnish-speaking rural farm households",
+      "applies_to": [
+        "farm master",
+        "farm mistress",
+        "farm daughters"
+      ],
+      "contexts": [
+        "household economy",
+        "property",
+        "family authority"
+      ],
+      "strength": "important documented tension",
+      "expectation": "The farm master commonly holds recognized patriarchal authority over the farm economy, while a farm mistress carries major productive and managerial responsibilities but may have limited independent access to cash or property controlled by the household head.",
+      "important_nuance": "Patriarchal authority is neither total nor uncontested. Rural women exercise agency, negotiate, resist and manage substantial parts of household production.",
+      "valid_from": "1850-01-01",
+      "valid_to": "1899-12-31",
+      "source_ids": [
+        "stark_limits_patriarchy",
+        "finlit_kukkonen"
+      ]
+    },
+    {
+      "id": "women_as_full_workers",
+      "category": "gender_and_capability",
+      "scope": "rural Finland",
+      "applies_to": [
+        "women",
+        "farm mistresses",
+        "farm daughters"
+      ],
+      "contexts": [
+        "work",
+        "household management",
+        "absence of household men"
+      ],
+      "strength": "well-supported corrective",
+      "expectation": "Women are expected to contribute substantially to agricultural and household production, and capable farm women may keep a holding functioning when men are absent.",
+      "important_nuance": "Do not import a simplistic urban-Victorian ideal in which respectable rural women are economically inactive or physically detached from farm work.",
+      "valid_from": "1800-01-01",
+      "valid_to": "1899-12-31",
+      "source_ids": [
+        "helsinki_women_agriculture"
+      ]
+    },
+    {
+      "id": "widowhood_changes_position",
+      "category": "marital_status",
+      "scope": "Nordic rural society including Finland",
+      "applies_to": [
+        "widows"
+      ],
+      "contexts": [
+        "property",
+        "household authority",
+        "economic independence"
+      ],
+      "strength": "documented variation",
+      "expectation": "Widowhood can materially change a woman's social and economic position. A landholding widow may possess meaningful economic security and room for independent action that should not be modelled as identical to the position of a married farm wife or unmarried daughter.",
+      "important_nuance": "Property matters greatly: widows without property could be far more vulnerable.",
+      "valid_from": "1800-01-01",
+      "valid_to": "1899-12-31",
+      "source_ids": [
+        "moring_rural_widows"
+      ]
+    },
+    {
+      "id": "gendered_household_space",
+      "category": "domestic_etiquette",
+      "scope": "documented western Finnish farmstead pattern",
+      "applies_to": [
+        "household members",
+        "guests"
+      ],
+      "contexts": [
+        "visiting",
+        "meals",
+        "indoor work",
+        "sleeping"
+      ],
+      "strength": "documented local pattern; not universal",
+      "expectation": "In documented western Finnish farmhouse interiors, the main room can be divided into men's and women's sides, and the rear or more honourable area is not simply entered by anyone without invitation.",
+      "important_nuance": "Use this as a plausible western-Finnish spatial etiquette pattern, not as a rule for every building or household.",
+      "valid_from": "1800-01-01",
+      "valid_to": "1899-12-31",
+      "source_ids": [
+        "seurasaari_farmhouse"
+      ]
+    },
+    {
+      "id": "household_includes_servants",
+      "category": "domestic_hierarchy",
+      "scope": "documented western Finnish farmstead pattern",
+      "applies_to": [
+        "farm family",
+        "maidservants",
+        "hired hands"
+      ],
+      "contexts": [
+        "sleeping",
+        "meals",
+        "daily household life"
+      ],
+      "strength": "documented household arrangement",
+      "expectation": "Servants and hired hands can be physically integrated into the farm household's daily living space rather than occupying a completely separate modern employee sphere.",
+      "important_nuance": "Shared space does not erase hierarchy between household heads, family members and servants.",
+      "valid_from": "1800-01-01",
+      "valid_to": "1899-12-31",
+      "source_ids": [
+        "seurasaari_farmhouse",
+        "roikonen_hakkinen_stratification"
+      ]
+    },
+    {
+      "id": "service_and_marriage_mobility",
+      "category": "social_mobility",
+      "scope": "rural Finland",
+      "applies_to": [
+        "servants",
+        "labourers",
+        "crofters",
+        "freeholder children"
+      ],
+      "contexts": [
+        "marriage",
+        "inheritance",
+        "household formation"
+      ],
+      "strength": "common life-course pattern",
+      "expectation": "Social position is not completely fixed at birth. Service, marriage, tenancy, inheritance, widowhood and remarriage can alter a person's place in the rural hierarchy over a lifetime.",
+      "important_nuance": "Mobility is constrained by property, family strategy and opportunity; it should not be treated as modern open-class mobility.",
+      "valid_from": "1800-01-01",
+      "valid_to": "1910-12-31",
+      "source_ids": [
+        "roikonen_hakkinen_stratification",
+        "moring_rural_widows"
+      ]
+    }
+  ],
+  "sources": {
+    "roikonen_hakkinen_stratification": {
+      "title": "Generations, Social Homogamy and Stratification in Finland, 1700–1910",
+      "authors": "Petri Roikonen and Antti Häkkinen",
+      "publisher": "University of Helsinki Research Portal",
+      "url": "https://researchportal.helsinki.fi/en/publications/generations-social-homogamy-and-stratification-in-finland-1700-19/"
+    },
+    "voutilainen_household": {
+      "title": "Marriage and Household Structure in historical Finland",
+      "author": "Miikka Voutilainen",
+      "publisher": "University of Helsinki repository",
+      "url": "https://helda.helsinki.fi/server/api/core/bitstreams/f61c5a28-930f-4189-be9f-a69c2cb1bc81/content"
+    },
+    "stark_limits_patriarchy": {
+      "title": "The Limits of Patriarchy",
+      "author": "Laura Stark",
+      "publisher": "Finnish Literature Society",
+      "url": "https://oa.finlit.fi/en/books/the-limits-of-patriarchy"
+    },
+    "finlit_kukkonen": {
+      "title": "Talollisen tytär Maria Loviisa Kukkonen (1840–1924)",
+      "publisher": "Finnish Literature Society",
+      "url": "https://tietava.finlit.fi/kynalla-kyntajat/kansankirjoittajat/talollisen-tytar-maria-loviisa-kukkonen1840-1924/"
+    },
+    "helsinki_women_agriculture": {
+      "title": "Puusepän- ja suutarinverstaat leskirouvien omistuksessa — historical discussion of Finnish women's economic and agricultural work",
+      "publisher": "University of Helsinki",
+      "url": "https://www.helsinki.fi/fi/uutiset/kulttuuri/puusepan-ja-suutarinverstaat-leskirouvien-omistuksessa-millaisia-olivat-naisjohtajat-1800-luvun-helsingissa"
+    },
+    "moring_rural_widows": {
+      "title": "Rural Widows, economy and co-residence in the 18th and 19th centuries",
+      "author": "Beatrice Moring",
+      "publisher": "University of Helsinki Research Portal",
+      "url": "https://researchportal.helsinki.fi/en/publications/rural-widows-economy-and-co-residence-in-the-18th-and-19th-centur/"
+    },
+    "seurasaari_farmhouse": {
+      "title": "Museum buildings – Seurasaari Open-Air Museum",
+      "publisher": "National Museum of Finland",
+      "url": "https://www.kansallismuseo.fi/en/seurasaarenulkomuseo/tutustu-museoon/museorakennukset"
+    }
+  }
+}

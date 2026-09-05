@@ -1,25 +1,55 @@
 from __future__ import annotations
 
+import os
 import re
+import sys
 from pathlib import Path
 
-from character_creation import (
+
+HERE = Path(__file__).resolve().parent
+CAMPAIGN_DIR = HERE.parent
+PROJECT_ROOT = CAMPAIGN_DIR.parents[1]
+PROFILE_PATH = (
+    CAMPAIGN_DIR
+    / "Bots"
+    / "Antti"
+    / "antti_prompt.txt"
+)
+ANTTI_NAME = "Antti Rautio"
+
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(
+        0,
+        str(PROJECT_ROOT),
+    )
+
+from character_creation import (  # noqa: E402
     CreatedCharacter,
     bind_character_discord_bot,
     configure_character_models,
     create_ai_character,
 )
-from character_profiles import set_character_profile
-from database import get_connection, initialize_database
+from character_profiles import (  # noqa: E402
+    set_character_profile,
+)
+from database import (  # noqa: E402
+    get_connection,
+    initialize_database,
+)
 
-
-HERE = Path(__file__).resolve().parent
-PROFILE_PATH = HERE / "Bots" / "Antti" / "antti_prompt.txt"
-ANTTI_NAME = "Antti Rautio"
 
 _CONTENT_REFERENCE_RE = re.compile(
     r"\s*:contentReference\[[^\]]+\]\{[^}]*\}"
 )
+
+
+def _activate_own_campaign_database():
+    os.environ[
+        "SEVENTH_GATE_DB_PATH"
+    ] = str(
+        CAMPAIGN_DIR
+        / "seventh_gate.db"
+    )
 
 
 def _read_antti_profile() -> str:
@@ -74,15 +104,11 @@ def import_antti(
     discord_bot_user_id=None,
 ):
     """
-    Register Antti in the Seventh Gate database.
+    Register or refresh Antti in the currently selected database.
 
-    Safe to run repeatedly:
-    - creates Antti only if he does not already exist;
-    - refreshes his authored profile from Bots/Antti/antti_prompt.txt;
-    - removes accidental contentReference artifacts before storage;
-    - preserves existing model/Discord configuration unless replacements
-      are explicitly supplied;
-    - never silently reactivates an inactive Antti.
+    When this file is executed directly, it selects its own Finland campaign
+    database first. When imported by tests/tools, normal database overrides
+    remain in control.
     """
     initialize_database()
 
@@ -111,9 +137,13 @@ def import_antti(
 
         return created
 
-    character_id = int(existing["id"])
+    character_id = int(
+        existing["id"]
+    )
 
-    if not int(existing["active"]):
+    if not int(
+        existing["active"]
+    ):
         raise RuntimeError(
             "Antti Rautio already exists but is inactive. "
             "Refusing to silently reactivate or duplicate him."
@@ -160,6 +190,8 @@ def import_antti(
 
 
 if __name__ == "__main__":
+    _activate_own_campaign_database()
+
     character = import_antti()
 
     print(
