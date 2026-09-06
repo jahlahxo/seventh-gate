@@ -107,7 +107,11 @@ def _participant_public_identity(
     if participant_type == "player_persona":
         row = conn.execute(
             """
-            SELECT id, rp_name, discord_name
+            SELECT
+                id,
+                rp_name,
+                discord_name,
+                appearance
             FROM player_personas
             WHERE id = ?
               AND active = 1
@@ -130,6 +134,9 @@ def _participant_public_identity(
             "entity_type": "player_persona",
             "entity_id": str(row["id"]),
             "name": name,
+            "appearance": _clean_text(
+                row["appearance"]
+            ),
         }
 
     conn.close()

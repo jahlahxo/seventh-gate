@@ -41,10 +41,13 @@ PRODUCTION_FILES = [
     "choose_model.bat",
     "discord_identity.py",
     "discord_adapter.py",
+    "rp_text.py",
+    "scene_memory.py",
     "campaigns/finland_1878/Bots/Antti/bot.py",
     "campaigns/finland_1878/Bots/Antti/antti_prompt.txt",
     "campaigns/finland_1878/tools/import_antti.py",
     "campaigns/finland_1878/tools/migrate_from_legacy.py",
+    "campaigns/finland_1878/tools/configure_campaign.py",
     "campaigns/finland_1878/campaign_shell.bat",
     "world_grounding.py",
     "social_grounding.py",
@@ -84,6 +87,8 @@ PRODUCTION_MODULES = [
     "choose_model",
     "discord_identity",
     "discord_adapter",
+    "rp_text",
+    "scene_memory",
     "world_grounding",
     "social_grounding",
 ]
@@ -116,6 +121,11 @@ TEST_FILES = [
     "test_campaign_paths.py",
     "campaigns/finland_1878/tests/test_world_grounding.py",
     "campaigns/finland_1878/tests/test_social_grounding.py",
+    "test_rp_text.py",
+    "test_scene_memory.py",
+    "test_story_brain.py",
+    "test_player_appearance_scene_refresh.py",
+    "campaigns/finland_1878/tests/test_finland_campaign_config.py",
 ]
 
 LEGACY_WARNINGS = {

@@ -63,6 +63,12 @@ Rules:
   naturally motivated dialogue.
 - World grounding is NOT automatically character knowledge. Reveal only
   perceivable manifestations.
+- This packet is internal filtering, not a public scene-description post.
+  Keep `current` and `environment` concise and immediately useful.
+- Do not dump the whole room, historical background or social explanation just
+  because it is available. Preserve the entities needed for correct choices,
+  but surface only salient manifestations of the present moment.
+- Let players discover atmosphere, people, customs and tensions through interaction rather than exposition.
 - Do not add narration outside the JSON object.
 """.strip()
 
