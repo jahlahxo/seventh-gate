@@ -20,24 +20,6 @@ from world import (
 from mortality import is_alive
 
 
-# ============================================================
-# SEVENTH GATE RESOLUTION SYSTEM
-#
-# Core roll:
-#
-#     2d6 + Attribute + Skill + situational modifiers
-#
-# The Director chooses the Attribute + Skill combination based
-# on HOW the action is being attempted.
-#
-# Rolls happen only when an outcome is meaningfully uncertain.
-# ============================================================
-
-
-# ============================================================
-# DIFFICULTIES
-# ============================================================
-
 DIFFICULTY = {
     "easy": 8,
     "standard": 10,
@@ -47,13 +29,7 @@ DIFFICULTY = {
     "extreme": 18,
 }
 
-
 DEFAULT_DIFFICULTY = DIFFICULTY["standard"]
-
-
-# ============================================================
-# ACTION CATEGORIES
-# ============================================================
 
 MOVEMENT_ACTIONS = {
     ActionType.MOVE,
@@ -61,7 +37,6 @@ MOVEMENT_ACTIONS = {
     ActionType.LEAVE,
     ActionType.FOLLOW,
 }
-
 
 ORDINARY_ACTIONS = {
     ActionType.TAKE,
@@ -73,7 +48,6 @@ ORDINARY_ACTIONS = {
     ActionType.LOCK,
 }
 
-
 CONTESTED_PHYSICAL_ACTIONS = {
     ActionType.ATTACK,
     ActionType.GRAB,
@@ -83,7 +57,6 @@ CONTESTED_PHYSICAL_ACTIONS = {
     ActionType.PUSH,
 }
 
-
 INVESTIGATIVE_ACTIONS = {
     ActionType.OBSERVE,
     ActionType.LISTEN,
@@ -91,108 +64,62 @@ INVESTIGATIVE_ACTIONS = {
     ActionType.INSPECT,
 }
 
-
 SOCIAL_ACTIONS = {
     ActionType.PERSUADE,
     ActionType.DECEIVE,
     ActionType.INTIMIDATE,
 }
 
-
-# ============================================================
-# DEFAULT PAIRINGS
-#
-# These are FALLBACKS, not rigid rules.
-#
-# The Director can override them according to the fiction.
-#
-# Example:
-#
-# Intimidation by physical menace:
-#     Strength + Intimidation
-#
-# Intimidation by social authority:
-#     Presence + Intimidation
-#
-# Intimidation through a calculated threat:
-#     Wits + Intimidation
-# ============================================================
-
+# Wits and Presence are deliberately absent.
+# Perception is sensory/observable awareness only.
 DEFAULT_PAIRINGS = {
     ActionType.OBSERVE:
         ("Perception", "Observation"),
-
     ActionType.LISTEN:
         ("Perception", "Observation"),
-
     ActionType.SEARCH:
         ("Perception", "Investigation"),
-
     ActionType.INSPECT:
-        ("Wits", "Investigation"),
-
+        ("Perception", "Investigation"),
     ActionType.ATTACK:
         ("Agility", "Fighting"),
-
     ActionType.GRAB:
         ("Strength", "Fighting"),
-
     ActionType.RESTRAIN:
         ("Strength", "Fighting"),
-
     ActionType.DISARM:
         ("Agility", "Fighting"),
-
     ActionType.ESCAPE:
         ("Agility", "Athletics"),
-
     ActionType.PUSH:
         ("Strength", "Athletics"),
-
     ActionType.PERSUADE:
-        ("Presence", "Persuasion"),
-
+        (None, "Persuasion"),
     ActionType.DECEIVE:
-        ("Wits", "Deception"),
-
+        (None, "Deception"),
     ActionType.INTIMIDATE:
-        ("Presence", "Intimidation"),
-
+        (None, "Intimidation"),
     ActionType.UNLOCK:
         ("Agility", "Craft"),
-
     ActionType.OTHER:
         (None, None),
 }
 
-
 DEFAULT_OPPOSITION = {
     ActionType.ATTACK:
         ("Agility", "Fighting"),
-
     ActionType.GRAB:
         ("Agility", "Athletics"),
-
     ActionType.RESTRAIN:
         ("Strength", "Athletics"),
-
     ActionType.DISARM:
         ("Agility", "Fighting"),
-
     ActionType.ESCAPE:
         ("Strength", "Fighting"),
-
     ActionType.PUSH:
         ("Strength", "Athletics"),
-
-    ActionType.DECEIVE:
-        ("Perception", "Insight"),
 }
 
-
-# ============================================================
-# ENTITY HELPERS
-# ============================================================
 
 def is_human_entity(entity):
     return (
@@ -200,16 +127,6 @@ def is_human_entity(entity):
         and entity.entity_type == "player_persona"
     )
 
-
-# ============================================================
-# TRAITS
-#
-# Traits are supplied to the Director as context.
-#
-# We DO NOT blindly convert every trait into a numeric bonus.
-# Only an explicitly resolved situational modifier should
-# affect a roll.
-# ============================================================
 
 def get_entity_traits(entity):
     if entity is None:
@@ -227,25 +144,13 @@ def get_entity_traits(entity):
     )
 
 
-# ============================================================
-# CONTEXTUAL MECHANICAL CHOICES
-#
-# The Director can place these in intent.metadata:
-#
-# attribute
-# skill
-# opposing_attribute
-# opposing_skill
-# difficulty
-# modifier
-# opposing_modifier
-#
-# This keeps interpretation separate from resolution.
-# ============================================================
-
 def get_actor_pairing(intent):
-    attribute = intent.metadata.get("attribute")
-    skill = intent.metadata.get("skill")
+    attribute = intent.metadata.get(
+        "attribute"
+    )
+    skill = intent.metadata.get(
+        "skill"
+    )
 
     default_attribute, default_skill = (
         DEFAULT_PAIRINGS.get(
@@ -258,7 +163,6 @@ def get_actor_pairing(intent):
         attribute
         if attribute is not None
         else default_attribute,
-
         skill
         if skill is not None
         else default_skill,
@@ -269,7 +173,6 @@ def get_target_pairing(intent):
     attribute = intent.metadata.get(
         "opposing_attribute"
     )
-
     skill = intent.metadata.get(
         "opposing_skill"
     )
@@ -285,27 +188,14 @@ def get_target_pairing(intent):
         attribute
         if attribute is not None
         else default_attribute,
-
         skill
         if skill is not None
         else default_skill,
     )
 
 
-# ============================================================
-# POSSIBILITY / VALIDATION
-# ============================================================
-
 def validate_action(intent):
     action_type = intent.action_type
-
-    # --------------------------------------------------------
-    # Mortality
-    #
-    # A deceased character remains part of world history and
-    # may still be physically present as a body, but cannot
-    # originate ordinary character actions.
-    # --------------------------------------------------------
 
     if (
         intent.actor.entity_type
@@ -317,55 +207,56 @@ def validate_action(intent):
     ):
         return ValidationResult(
             allowed=False,
-            resolution_class=ResolutionClass.IMPOSSIBLE,
-            reason="A deceased character cannot perform this action.",
+            resolution_class=
+                ResolutionClass.IMPOSSIBLE,
+            reason=(
+                "A deceased character cannot perform this action."
+            ),
         )
-
-    # --------------------------------------------------------
-    # Explicit impossibility supplied by Director/world rules
-    # --------------------------------------------------------
 
     if intent.metadata.get("impossible"):
         return ValidationResult(
             allowed=False,
-            resolution_class=ResolutionClass.IMPOSSIBLE,
+            resolution_class=
+                ResolutionClass.IMPOSSIBLE,
             reason=intent.metadata.get(
                 "impossible_reason",
-                "The action is not physically or logically possible.",
+                (
+                    "The action is not physically or logically possible."
+                ),
             ),
         )
-
-    # --------------------------------------------------------
-    # Explicit automatic result supplied by Director
-    # --------------------------------------------------------
 
     if intent.metadata.get("automatic"):
         return ValidationResult(
             allowed=True,
-            resolution_class=ResolutionClass.AUTOMATIC,
-            reason="The action does not require a roll.",
+            resolution_class=
+                ResolutionClass.AUTOMATIC,
+            reason=(
+                "The action does not require a roll."
+            ),
         )
-
-    # --------------------------------------------------------
-    # Movement
-    # --------------------------------------------------------
 
     if action_type in MOVEMENT_ACTIONS:
         if intent.destination is None:
             return ValidationResult(
                 allowed=False,
-                resolution_class=ResolutionClass.IMPOSSIBLE,
+                resolution_class=
+                    ResolutionClass.IMPOSSIBLE,
                 reason="No destination was specified.",
             )
 
         destination = get_location(
-            int(intent.destination.entity_id)
+            int(
+                intent.destination.entity_id
+            )
         )
 
         if destination is None:
             return ValidationResult(
                 allowed=False,
-                resolution_class=ResolutionClass.IMPOSSIBLE,
+                resolution_class=
+                    ResolutionClass.IMPOSSIBLE,
                 reason="The destination does not exist.",
             )
 
@@ -374,62 +265,68 @@ def validate_action(intent):
             intent.actor.entity_id,
         )
 
-        # Initial placement.
         if current is None:
             return ValidationResult(
                 allowed=True,
-                resolution_class=ResolutionClass.AUTOMATIC,
+                resolution_class=
+                    ResolutionClass.AUTOMATIC,
                 reason="Initial placement.",
             )
 
         if (
             current["location_id"]
-            == int(intent.destination.entity_id)
+            == int(
+                intent.destination.entity_id
+            )
         ):
             return ValidationResult(
                 allowed=False,
-                resolution_class=ResolutionClass.IMPOSSIBLE,
+                resolution_class=
+                    ResolutionClass.IMPOSSIBLE,
                 reason="The actor is already there.",
             )
 
         connection = get_connection_between(
             current["location_id"],
-            int(intent.destination.entity_id),
+            int(
+                intent.destination.entity_id
+            ),
         )
 
         if connection is None:
             return ValidationResult(
                 allowed=False,
-                resolution_class=ResolutionClass.IMPOSSIBLE,
+                resolution_class=
+                    ResolutionClass.IMPOSSIBLE,
                 reason=(
-                    "There is no direct route between "
-                    "those locations."
+                    "There is no direct route between those locations."
                 ),
             )
 
         if connection["locked"]:
             return ValidationResult(
                 allowed=False,
-                resolution_class=ResolutionClass.IMPOSSIBLE,
+                resolution_class=
+                    ResolutionClass.IMPOSSIBLE,
                 reason="The route is locked.",
             )
 
         if connection["restricted"]:
             return ValidationResult(
                 allowed=False,
-                resolution_class=ResolutionClass.IMPOSSIBLE,
-                reason="The route is currently restricted.",
+                resolution_class=
+                    ResolutionClass.IMPOSSIBLE,
+                reason=(
+                    "The route is currently restricted."
+                ),
             )
 
         return ValidationResult(
             allowed=True,
-            resolution_class=ResolutionClass.AUTOMATIC,
+            resolution_class=
+                ResolutionClass.AUTOMATIC,
             reason="The movement is unobstructed.",
         )
-
-    # --------------------------------------------------------
-    # Explicit classification supplied by Director
-    # --------------------------------------------------------
 
     requested_class = intent.metadata.get(
         "resolution_class"
@@ -439,47 +336,44 @@ def validate_action(intent):
         resolution_class = ResolutionClass(
             requested_class
         )
-
-    elif action_type in CONTESTED_PHYSICAL_ACTIONS:
-        resolution_class = ResolutionClass.CONTESTED
-
-    elif action_type in INVESTIGATIVE_ACTIONS:
-        resolution_class = ResolutionClass.UNCERTAIN
-
+    elif (
+        action_type
+        in CONTESTED_PHYSICAL_ACTIONS
+    ):
+        resolution_class = (
+            ResolutionClass.CONTESTED
+        )
+    elif (
+        action_type
+        in INVESTIGATIVE_ACTIONS
+    ):
+        resolution_class = (
+            ResolutionClass.UNCERTAIN
+        )
     elif action_type in SOCIAL_ACTIONS:
-        # Deception against an NPC is normally opposed.
-        if (
-            action_type == ActionType.DECEIVE
-            and intent.target is not None
-            and not is_human_entity(intent.target)
-        ):
-            resolution_class = ResolutionClass.CONTESTED
-        else:
-            resolution_class = ResolutionClass.UNCERTAIN
-
+        # Social resolution judges only external effectiveness.
+        # It is not a lie detector and never decides a mind.
+        resolution_class = (
+            ResolutionClass.UNCERTAIN
+        )
     elif action_type == ActionType.UNLOCK:
-        resolution_class = ResolutionClass.UNCERTAIN
-
+        resolution_class = (
+            ResolutionClass.UNCERTAIN
+        )
     elif action_type in ORDINARY_ACTIONS:
-        resolution_class = ResolutionClass.AUTOMATIC
-
+        resolution_class = (
+            ResolutionClass.AUTOMATIC
+        )
     else:
-        resolution_class = ResolutionClass.UNCERTAIN
-
-    # --------------------------------------------------------
-    # Human internal agency
-    #
-    # The server has a campaign-level adult-content agreement,
-    # so Seventh Gate does not stop scenes for runtime consent
-    # prompts. Social mechanics can still resolve external
-    # effectiveness, pressure, credibility, etc., but they do
-    # not write a human-controlled character's thoughts,
-    # emotions, beliefs or voluntary choices into world state.
-    # --------------------------------------------------------
+        resolution_class = (
+            ResolutionClass.UNCERTAIN
+        )
 
     if (
         action_type in SOCIAL_ACTIONS
-        and is_human_entity(intent.target)
+        and is_human_entity(
+            intent.target
+        )
     ):
         actor_attribute, actor_skill = (
             get_actor_pairing(intent)
@@ -487,7 +381,8 @@ def validate_action(intent):
 
         return ValidationResult(
             allowed=True,
-            resolution_class=ResolutionClass.UNCERTAIN,
+            resolution_class=
+                ResolutionClass.UNCERTAIN,
             reason=(
                 "Resolve external effectiveness only; "
                 "the human player retains control of their "
@@ -503,30 +398,34 @@ def validate_action(intent):
             preserves_human_agency=True,
         )
 
-    # --------------------------------------------------------
-    # Automatic
-    # --------------------------------------------------------
-
-    if resolution_class == ResolutionClass.AUTOMATIC:
+    if (
+        resolution_class
+        == ResolutionClass.AUTOMATIC
+    ):
         return ValidationResult(
             allowed=True,
-            resolution_class=ResolutionClass.AUTOMATIC,
-            reason="No meaningful uncertainty requires a roll.",
+            resolution_class=
+                ResolutionClass.AUTOMATIC,
+            reason=(
+                "No meaningful uncertainty requires a roll."
+            ),
         )
 
     actor_attribute, actor_skill = (
         get_actor_pairing(intent)
     )
 
-    # --------------------------------------------------------
-    # Uncertain
-    # --------------------------------------------------------
-
-    if resolution_class == ResolutionClass.UNCERTAIN:
+    if (
+        resolution_class
+        == ResolutionClass.UNCERTAIN
+    ):
         return ValidationResult(
             allowed=True,
-            resolution_class=ResolutionClass.UNCERTAIN,
-            reason="The outcome is meaningfully uncertain.",
+            resolution_class=
+                ResolutionClass.UNCERTAIN,
+            reason=(
+                "The outcome is meaningfully uncertain."
+            ),
             difficulty=intent.metadata.get(
                 "difficulty",
                 DEFAULT_DIFFICULTY,
@@ -536,18 +435,17 @@ def validate_action(intent):
             requires_roll=True,
         )
 
-    # --------------------------------------------------------
-    # Contested
-    # --------------------------------------------------------
-
-    if resolution_class == ResolutionClass.CONTESTED:
+    if (
+        resolution_class
+        == ResolutionClass.CONTESTED
+    ):
         if intent.target is None:
             return ValidationResult(
                 allowed=False,
-                resolution_class=ResolutionClass.IMPOSSIBLE,
+                resolution_class=
+                    ResolutionClass.IMPOSSIBLE,
                 reason=(
-                    "A contested action requires "
-                    "an opposing target."
+                    "A contested action requires an opposing target."
                 ),
             )
 
@@ -557,8 +455,11 @@ def validate_action(intent):
 
         return ValidationResult(
             allowed=True,
-            resolution_class=ResolutionClass.CONTESTED,
-            reason="Another character can actively oppose it.",
+            resolution_class=
+                ResolutionClass.CONTESTED,
+            reason=(
+                "Another character can actively oppose it."
+            ),
             relevant_stat=actor_attribute,
             relevant_skill=actor_skill,
             opposing_stat=target_attribute,
@@ -568,20 +469,20 @@ def validate_action(intent):
 
     return ValidationResult(
         allowed=False,
-        resolution_class=ResolutionClass.IMPOSSIBLE,
+        resolution_class=
+            ResolutionClass.IMPOSSIBLE,
         reason="No valid resolution rule was found.",
     )
 
 
-# ============================================================
-# 2D6
-# ============================================================
-
 def roll_2d6():
     die_one = random.randint(1, 6)
     die_two = random.randint(1, 6)
-
-    return die_one, die_two, die_one + die_two
+    return (
+        die_one,
+        die_two,
+        die_one + die_two,
+    )
 
 
 def calculate_total(
@@ -634,21 +535,6 @@ def calculate_total(
     }
 
 
-# ============================================================
-# DEGREE OF OUTCOME
-#
-# Four practical narrative outcomes:
-#
-# failure
-# partial / success at cost
-# success
-# exceptional success
-#
-# OutcomeDegree still contains catastrophic_failure for
-# compatibility, but ordinary resolution does not manufacture
-# catastrophic consequences merely because the dice were low.
-# ============================================================
-
 def degree_from_margin(margin):
     if margin < 0:
         return OutcomeDegree.FAILURE
@@ -662,25 +548,18 @@ def degree_from_margin(margin):
     return OutcomeDegree.EXCEPTIONAL_SUCCESS
 
 
-# ============================================================
-# RESOLUTION
-# ============================================================
-
 def resolve_action(intent):
     validation = validate_action(intent)
 
     if not validation.allowed:
         return ResolvedAction(
             intent=intent,
-            resolution_class=validation.resolution_class,
+            resolution_class=
+                validation.resolution_class,
             degree=OutcomeDegree.FAILURE,
             success=False,
             outcome=validation.reason,
         )
-
-    # --------------------------------------------------------
-    # Automatic
-    # --------------------------------------------------------
 
     if (
         validation.resolution_class
@@ -688,7 +567,8 @@ def resolve_action(intent):
     ):
         return ResolvedAction(
             intent=intent,
-            resolution_class=ResolutionClass.AUTOMATIC,
+            resolution_class=
+                ResolutionClass.AUTOMATIC,
             degree=OutcomeDegree.SUCCESS,
             success=True,
             outcome=(
@@ -697,16 +577,18 @@ def resolve_action(intent):
             ),
         )
 
-    # --------------------------------------------------------
-    # Uncertain
-    # --------------------------------------------------------
-
-    if validation.resolution_class == ResolutionClass.UNCERTAIN:
+    if (
+        validation.resolution_class
+        == ResolutionClass.UNCERTAIN
+    ):
         actor_result = calculate_total(
             intent.actor,
             validation.relevant_stat,
             validation.relevant_skill,
-            intent.metadata.get("modifier", 0),
+            intent.metadata.get(
+                "modifier",
+                0,
+            ),
         )
 
         difficulty = (
@@ -715,10 +597,16 @@ def resolve_action(intent):
             else DEFAULT_DIFFICULTY
         )
 
-        margin = actor_result["total"] - difficulty
-        degree = degree_from_margin(margin)
-
-        success = degree != OutcomeDegree.FAILURE
+        margin = (
+            actor_result["total"]
+            - difficulty
+        )
+        degree = degree_from_margin(
+            margin
+        )
+        success = (
+            degree != OutcomeDegree.FAILURE
+        )
 
         if validation.preserves_human_agency:
             outcome = (
@@ -727,6 +615,12 @@ def resolve_action(intent):
                 "target's thoughts, feelings, beliefs, or "
                 "voluntary choices."
             )
+        elif intent.action_type in SOCIAL_ACTIONS:
+            outcome = (
+                f"External effectiveness: {degree.value}. "
+                "This does not determine the target's "
+                "private thoughts, beliefs, feelings, or choices."
+            )
         else:
             outcome = (
                 f"The action resolves as {degree.value}."
@@ -734,15 +628,19 @@ def resolve_action(intent):
 
         return ResolvedAction(
             intent=intent,
-            resolution_class=validation.resolution_class,
+            resolution_class=
+                validation.resolution_class,
             degree=degree,
             success=success,
             outcome=outcome,
-            actor_roll=actor_result["dice_total"],
-            actor_total=actor_result["total"],
+            actor_roll=
+                actor_result["dice_total"],
+            actor_total=
+                actor_result["total"],
             difficulty=difficulty,
             metadata={
-                "dice": actor_result["dice"],
+                "dice":
+                    actor_result["dice"],
                 "attribute_value":
                     actor_result["attribute"],
                 "skill_value":
@@ -754,10 +652,6 @@ def resolve_action(intent):
             },
         )
 
-    # --------------------------------------------------------
-    # Contested
-    # --------------------------------------------------------
-
     if (
         validation.resolution_class
         == ResolutionClass.CONTESTED
@@ -766,7 +660,10 @@ def resolve_action(intent):
             intent.actor,
             validation.relevant_stat,
             validation.relevant_skill,
-            intent.metadata.get("modifier", 0),
+            intent.metadata.get(
+                "modifier",
+                0,
+            ),
         )
 
         target_result = calculate_total(
@@ -783,24 +680,31 @@ def resolve_action(intent):
             actor_result["total"]
             - target_result["total"]
         )
-
-        degree = degree_from_margin(margin)
-
-        success = degree != OutcomeDegree.FAILURE
+        degree = degree_from_margin(
+            margin
+        )
+        success = (
+            degree != OutcomeDegree.FAILURE
+        )
 
         return ResolvedAction(
             intent=intent,
-            resolution_class=ResolutionClass.CONTESTED,
+            resolution_class=
+                ResolutionClass.CONTESTED,
             degree=degree,
             success=success,
             outcome=(
                 f"The contested action resolves as "
                 f"{degree.value}."
             ),
-            actor_roll=actor_result["dice_total"],
-            actor_total=actor_result["total"],
-            target_roll=target_result["dice_total"],
-            target_total=target_result["total"],
+            actor_roll=
+                actor_result["dice_total"],
+            actor_total=
+                actor_result["total"],
+            target_roll=
+                target_result["dice_total"],
+            target_total=
+                target_result["total"],
             metadata={
                 "actor_dice":
                     actor_result["dice"],
@@ -823,7 +727,8 @@ def resolve_action(intent):
 
     return ResolvedAction(
         intent=intent,
-        resolution_class=ResolutionClass.IMPOSSIBLE,
+        resolution_class=
+            ResolutionClass.IMPOSSIBLE,
         degree=OutcomeDegree.FAILURE,
         success=False,
         outcome="No valid resolution path was found.",

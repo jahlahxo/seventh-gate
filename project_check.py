@@ -41,6 +41,7 @@ PRODUCTION_FILES = [
     "choose_model.bat",
     "discord_identity.py",
     "discord_adapter.py",
+    "player_registration.py",
     "rp_text.py",
     "scene_memory.py",
     "campaigns/finland_1878/Bots/Antti/bot.py",
@@ -48,6 +49,7 @@ PRODUCTION_FILES = [
     "campaigns/finland_1878/tools/import_antti.py",
     "campaigns/finland_1878/tools/migrate_from_legacy.py",
     "campaigns/finland_1878/tools/configure_campaign.py",
+    "campaigns/finland_1878/tools/setup_locations.py",
     "campaigns/finland_1878/campaign_shell.bat",
     "world_grounding.py",
     "social_grounding.py",
@@ -87,6 +89,7 @@ PRODUCTION_MODULES = [
     "choose_model",
     "discord_identity",
     "discord_adapter",
+    "player_registration",
     "rp_text",
     "scene_memory",
     "world_grounding",
@@ -126,6 +129,8 @@ TEST_FILES = [
     "test_story_brain.py",
     "test_player_appearance_scene_refresh.py",
     "campaigns/finland_1878/tests/test_finland_campaign_config.py",
+    "test_attribute_policy.py",
+    "test_player_registration.py",
 ]
 
 LEGACY_WARNINGS = {
@@ -138,7 +143,6 @@ LEGACY_WARNINGS = {
         "resolver.py as the production module."
     ),
 }
-
 
 FORBIDDEN_CAMPAIGN_PATHS = [
     "Bots/Antti",
@@ -289,7 +293,9 @@ def run_tests() -> bool:
             loader.loadTestsFromModule(module)
         )
 
-    runner = unittest.TextTestRunner(verbosity=1)
+    runner = unittest.TextTestRunner(
+        verbosity=1
+    )
     result = runner.run(suite)
 
     print()

@@ -15,9 +15,6 @@ load_dotenv(
     BOT_DIR / ".env"
 )
 
-# The bot's physical folder determines which campaign database it belongs to.
-# This keeps separate Discord worlds isolated even when they use one shared
-# Seventh Gate engine.
 os.environ[
     "SEVENTH_GATE_DB_PATH"
 ] = str(
@@ -35,6 +32,15 @@ from discord_adapter import run_character_bot  # noqa: E402
 
 
 CHARACTER_ID = 1
+
+REGISTRATION_CHANNEL_ID = (
+    1546161381878009856
+)
+
+REGISTERED_ROLE_ID = (
+    1546168927690956811
+)
+
 TOKEN = os.getenv(
     "DISCORD_TOKEN"
 )
@@ -50,6 +56,12 @@ if __name__ == "__main__":
     run_character_bot(
         token=TOKEN,
         character_id=CHARACTER_ID,
-        diagnostic_trigger="antti ping",
-        diagnostic_response="Perkele. I’m here.",
+        diagnostic_trigger=
+            "antti ping",
+        diagnostic_response=
+            "Perkele. I’m here.",
+        registration_channel_id=
+            REGISTRATION_CHANNEL_ID,
+        registered_role_id=
+            REGISTERED_ROLE_ID,
     )

@@ -1,32 +1,12 @@
 from database import get_connection
 
 
-# ============================================================
-# SEVENTH GATE CHARACTER SYSTEM
-#
-# Attributes: 0-4
-# Skills:     0-4
-#
-# 0 = notably weak / untrained
-# 1 = below average / novice
-# 2 = ordinary / competent
-# 3 = strong / skilled
-# 4 = exceptional
-#
-# Traits are freeform and contextual rather than simply being
-# permanent numerical bonuses.
-# ============================================================
-
-
 ATTRIBUTE_NAMES = (
     "Strength",
     "Agility",
     "Endurance",
     "Perception",
-    "Wits",
-    "Presence",
 )
-
 
 SKILL_NAMES = (
     "Athletics",
@@ -45,20 +25,10 @@ SKILL_NAMES = (
     "Insight",
 )
 
-
 ATTRIBUTE_MIN = 0
 ATTRIBUTE_MAX = 4
-
 SKILL_MIN = 0
 SKILL_MAX = 4
-
-
-# ============================================================
-# VALID OWNER TYPES
-#
-# NPC = character
-# Human = player_persona
-# ============================================================
 
 OWNER_TYPES = {
     "character",
@@ -72,10 +42,6 @@ def validate_owner_type(owner_type):
             f"Invalid owner type: {owner_type}"
         )
 
-
-# ============================================================
-# ATTRIBUTE VALIDATION
-# ============================================================
 
 def validate_attribute_name(name):
     if name not in ATTRIBUTE_NAMES:
@@ -96,14 +62,6 @@ def validate_attribute_value(value):
     return value
 
 
-# ============================================================
-# SKILL VALIDATION
-#
-# Standard skills are recommended, but custom skills are
-# deliberately allowed for setting-specific competence such
-# as Smithing, Theology, Sailing, Farming, etc.
-# ============================================================
-
 def validate_skill_value(value):
     value = int(value)
 
@@ -116,10 +74,6 @@ def validate_skill_value(value):
     return value
 
 
-# ============================================================
-# ATTRIBUTES
-# ============================================================
-
 def set_attribute(
     owner_type,
     owner_id,
@@ -128,11 +82,9 @@ def set_attribute(
 ):
     validate_owner_type(owner_type)
     validate_attribute_name(attribute_name)
-
     value = validate_attribute_value(value)
 
     conn = get_connection()
-
     conn.execute(
         """
         INSERT INTO character_stats (
@@ -143,8 +95,7 @@ def set_attribute(
         )
         VALUES (?, ?, ?, ?)
         ON CONFLICT(owner_type, owner_id, stat_name)
-        DO UPDATE SET
-            stat_value = excluded.stat_value
+        DO UPDATE SET stat_value = excluded.stat_value
         """,
         (
             owner_type,
@@ -153,7 +104,6 @@ def set_attribute(
             value,
         ),
     )
-
     conn.commit()
     conn.close()
 
@@ -167,7 +117,6 @@ def get_attribute(
     validate_attribute_name(attribute_name)
 
     conn = get_connection()
-
     row = conn.execute(
         """
         SELECT stat_value
@@ -182,7 +131,6 @@ def get_attribute(
             attribute_name,
         ),
     ).fetchone()
-
     conn.close()
 
     if row is None:
@@ -203,7 +151,6 @@ def get_attributes(
     }
 
     conn = get_connection()
-
     rows = conn.execute(
         """
         SELECT stat_name, stat_value
@@ -216,7 +163,6 @@ def get_attributes(
             int(owner_id),
         ),
     ).fetchall()
-
     conn.close()
 
     for row in rows:
@@ -225,10 +171,6 @@ def get_attributes(
 
     return result
 
-
-# ============================================================
-# SKILLS
-# ============================================================
 
 def set_skill(
     owner_type,
@@ -249,7 +191,6 @@ def set_skill(
     value = validate_skill_value(value)
 
     conn = get_connection()
-
     conn.execute(
         """
         INSERT INTO character_skills (
@@ -273,7 +214,6 @@ def set_skill(
             notes,
         ),
     )
-
     conn.commit()
     conn.close()
 
@@ -286,7 +226,6 @@ def get_skill(
     validate_owner_type(owner_type)
 
     conn = get_connection()
-
     row = conn.execute(
         """
         SELECT skill_value
@@ -301,7 +240,6 @@ def get_skill(
             skill_name,
         ),
     ).fetchone()
-
     conn.close()
 
     if row is None:
@@ -317,7 +255,6 @@ def get_skills(
     validate_owner_type(owner_type)
 
     conn = get_connection()
-
     rows = conn.execute(
         """
         SELECT
@@ -334,7 +271,6 @@ def get_skills(
             int(owner_id),
         ),
     ).fetchall()
-
     conn.close()
 
     return {
@@ -345,22 +281,6 @@ def get_skills(
         for row in rows
     }
 
-
-# ============================================================
-# TRAITS
-#
-# Traits describe meaningful qualities that the Director can
-# consider when judging possibility, difficulty, knowledge,
-# behaviour or consequences.
-#
-# Examples:
-#
-# Experienced Hunter
-# Bad Knee
-# Cannot Read
-# Farm-Raised
-# Terrified of Horses
-# ============================================================
 
 def add_trait(
     owner_type,
@@ -379,7 +299,6 @@ def add_trait(
         )
 
     conn = get_connection()
-
     conn.execute(
         """
         INSERT INTO character_traits (
@@ -403,7 +322,6 @@ def add_trait(
             mechanical_effect,
         ),
     )
-
     conn.commit()
     conn.close()
 
@@ -416,7 +334,6 @@ def remove_trait(
     validate_owner_type(owner_type)
 
     conn = get_connection()
-
     conn.execute(
         """
         DELETE FROM character_traits
@@ -430,7 +347,6 @@ def remove_trait(
             trait_name,
         ),
     )
-
     conn.commit()
     conn.close()
 
@@ -442,7 +358,6 @@ def get_traits(
     validate_owner_type(owner_type)
 
     conn = get_connection()
-
     rows = conn.execute(
         """
         SELECT
@@ -459,7 +374,6 @@ def get_traits(
             int(owner_id),
         ),
     ).fetchall()
-
     conn.close()
 
     return [
@@ -473,10 +387,6 @@ def get_traits(
     ]
 
 
-# ============================================================
-# COMPLETE CHARACTER SHEET
-# ============================================================
-
 def get_character_sheet(
     owner_type,
     owner_id,
@@ -484,17 +394,14 @@ def get_character_sheet(
     return {
         "owner_type": owner_type,
         "owner_id": int(owner_id),
-
         "attributes": get_attributes(
             owner_type,
             owner_id,
         ),
-
         "skills": get_skills(
             owner_type,
             owner_id,
         ),
-
         "traits": get_traits(
             owner_type,
             owner_id,
@@ -502,19 +409,15 @@ def get_character_sheet(
     }
 
 
-# ============================================================
-# INITIAL ATTRIBUTE SHEET
-#
-# We deliberately do NOT silently invent stats.
-# A new sheet begins at ordinary baseline.
-#
-# Players/NPC designers can then redistribute/customize it.
-# ============================================================
-
 def create_default_attributes(
     owner_type,
     owner_id,
 ):
+    """
+    Optional helper for authored characters.
+
+    Human registration deliberately does NOT call this.
+    """
     validate_owner_type(owner_type)
 
     for attribute_name in ATTRIBUTE_NAMES:
@@ -525,12 +428,6 @@ def create_default_attributes(
             2,
         )
 
-
-# ============================================================
-# CHARACTER SHEET VALIDATION
-#
-# Useful later when the player approves an AI-proposed sheet.
-# ============================================================
 
 def validate_character_sheet(
     attributes,

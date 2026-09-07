@@ -1,0 +1,27 @@
+SEVENTH GATE — REGISTRATION GATE BATCH
+
+Copy/extract this batch into:
+C:\Users\Becca\Documents\7th Gate\
+
+REPLACE:
+- characters.py
+- resolver.py
+- discord_adapter.py
+- project_check.py
+- campaigns\finland_1878\Bots\Antti\bot.py
+
+ADD:
+- player_registration.py
+- test_attribute_policy.py
+- test_player_registration.py
+
+setup_locations.py from the previous step must remain at:
+campaigns\finland_1878\tools\setup_locations.py
+
+Then run:
+python project_check.py
+
+Expected full-suite total from the previous 219-test baseline:
+236 tests.
+
+Do not update GitHub until the checker is fully green.
